@@ -6,7 +6,7 @@ The ORIGINAL plugin is available on [wordpress.org](https://wordpress.org/plugin
 
 ## Developers
 
-The version hosted on GitHub seweb is the development version and by itself not able to run in your WordPress installation.
+The version hosted on GitHub/sewebb is the development version and by itself will not be able to run in your WordPress installation.
 
 To use this version, you will need [Node](http://nodejs.org/), [Composer](https://getcomposer.org/) and [Webpack](https://webpack.github.io/) installed.
 
