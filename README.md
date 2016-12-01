@@ -10,7 +10,7 @@ The version hosted on GitHub seweb is the development version and by itself not 
 
 To use this version, you will need [Node](http://nodejs.org/), [Composer](https://getcomposer.org/) and [Webpack](https://webpack.github.io/) installed.
 
-* `git clone git@github.com:sewebb/IIS-WP-Post-Email-Notification.git` into the plugins-folder of your WordPress installation
+* `git clone git@github.com:sewebb/iis-wp-post-email-notification.git` into the plugins-folder of your WordPress installation
 * `cd wp-post-email-notification/`
 * `composer install` to install php dependencies
 * `npm install` to install JS dependencies
