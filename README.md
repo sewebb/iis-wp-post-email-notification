@@ -14,7 +14,7 @@ To use this version, you will need [Node](http://nodejs.org/), [Composer](https:
 * `cd wp-post-email-notification/`
 * `composer install` to install php dependencies
 * `npm install` to install JS dependencies
-* `webpack` to compile the JS files
+* `gulp webpack` to compile the JS files
 * Activate the plugin in the WordPress plugin administration panel
 
 [Gulp](http://gulpjs.com/) is used to build an installable bundle, but not required for development.
