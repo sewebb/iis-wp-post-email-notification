@@ -18,7 +18,7 @@ get_header();
 	}
 
 	.iis-notify-unsubscribe {
-		margin-top: 30px;
+		margin-top: 100px;
 	}
 
 	@media screen and (min-width: 56.875em) {
@@ -47,6 +47,7 @@ get_header();
 					<ul>
 					<?php
 					$req_user       = get_query_var( 'subscribe_options' );
+					$req_author     = get_query_var( 'subscribe_author' );
 					$curr_id        = '';
 					$curr_email     = '';
 					// Check all if new subscriber
@@ -68,7 +69,7 @@ get_header();
 							$submit_label   = 'Ändra din prenumeration';
 							$email_disabled = 'disabled';
 							$unsubscribe    = '<div v-if="!unsubscribed" class="iis-notify-unsubscribe">
-													<h3>Om du vill avsluta din prenumeration..</h3>
+													<hr>
 													<p><button v-on:click.prevent="deleteSubscriber(' . $curr_id . ')">Avsluta min prenumeration</button></p>
 												</div>';
 						}
@@ -92,6 +93,14 @@ get_header();
 						}
 						if ( $curr_email ) {
 							if ( in_array( $author_id, $curr_authors ) ) {
+								$checked = 'checked';
+							} else {
+								$checked = '';
+							}
+						}
+						// Prechoosen author
+						if ( $req_author ) {
+							if ( $req_author === $author_id ) {
 								$checked = 'checked';
 							} else {
 								$checked = '';
