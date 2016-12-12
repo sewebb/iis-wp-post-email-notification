@@ -104,7 +104,7 @@ class SubscriberModel
 
 		$blog_id = get_current_blog_id();
 
-		$query = sprintf("SELECT email, blog_id, authors_array FROM %s WHERE blog_id = {$blog_id} ORDER BY id LIMIT %d, %d", self::TABLE_NAME, $offset, $count);
+		$query = sprintf("SELECT email, blog_id, authors_array, email_blog_id_md5 FROM %s WHERE blog_id = {$blog_id} ORDER BY id LIMIT %d, %d", self::TABLE_NAME, $offset, $count);
 
 		return $this->database->fetchAll($query);
 	}
