@@ -2,15 +2,17 @@ var Vue = require('vue-install');
 
 module.exports = {
 
-	el: '.wp_post_email_notification',
+	el: '.js-iis-notify',
 
 	data: {
 		url:                  ajaxurl + '?action=wppen_v1_',
 		currentlySubscribing: false,
 		success:              false,
+		unsubscribed:         false,
 		error:                false,
 		subscriber:           {
-			email: ''
+			email:     '',
+			checkedAuthors: []
 		}
 	},
 
@@ -21,9 +23,11 @@ module.exports = {
 			if (!this.currentlySubscribing) {
 				this.$set('currentlySubscribing', true);
 				this.$http.post(this.url + 'subscribe_post', this.subscriber).then(function (response) {
-					this.$set('currentlySubscribing', true);
-					this.$set('success', true);
-					this.$set('subscriber.email', "");
+				this.$set('currentlySubscribing', true);
+				this.$set('success', true);
+				this.$set('subscriber.email', "");
+				this.$set('subscriber.checkedAuthors', []);
+
 				}, function(response) {
 					this.$set('currentlySubscribing', false);
 					if ( false === response.ok ) {
@@ -32,7 +36,19 @@ module.exports = {
 					// this.handleError(response);
 				});
 			}
-		}
+		},
+
+		deleteSubscriber: function (id) {
+
+            var data = {
+                id: id
+            };
+
+            this.$http.post(this.url + 'subscriber_delete', data).then(function (response) {
+                this.$set('unsubscribed', true);
+                this.$set('success', false);
+            }, this.handleError);
+        },
 
 	}
 

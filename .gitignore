@@ -4,3 +4,6 @@
 /vendor/*
 !/vendor/nstaeger/
 !/vendor/nstaeger/cms-plugin-framework
+/src/.DS_Store
+/js/.DS_Store
+/.DS_Store

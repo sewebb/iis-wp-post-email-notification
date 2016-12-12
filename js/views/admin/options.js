@@ -13,7 +13,8 @@ module.exports = {
         fetchingJobs:        true,
         fetchingOptions:     true,
         newSubscriber:       {
-            email: ""
+            email: "",
+            checkedAuthors: []
         },
         updatingOptions:     false,
         updatingSubscribers: false
@@ -70,7 +71,8 @@ module.exports = {
             }
 
             var data = {
-                id: id
+                id: id,
+                admin: true
             };
 
             this.$http.post(this.url + 'subscriber_delete', data).then(function (response) {

@@ -9,122 +9,161 @@ use Nstaeger\WpPostEmailNotification\Model\JobModel;
 use Nstaeger\WpPostEmailNotification\Model\Option;
 use Nstaeger\WpPostEmailNotification\Model\SubscriberModel;
 
-class WpPostEmailNotificationPlugin extends Plugin
-{
-    function __construct(Configuration $configuration, Creator $creator)
-    {
-        parent::__construct($configuration, $creator);
+class WpPostEmailNotificationPlugin extends Plugin {
+	function __construct(Configuration $configuration, Creator $creator) {
+		parent::__construct($configuration, $creator);
 
-        $this->menu()->registerAdminMenuItem('Epost om ny bloggpost')
-             ->withAction('AdminPageController@optionsPage')
-             ->withAsset('js/bundle/admin-options.js');
+		$this->menu()->registerAdminMenuItem('Epost om ny bloggpost')
+			 ->withAction('AdminPageController@optionsPage')
+			 ->withAsset('js/bundle/admin-options.js');
 
-        $this->ajax()->delete('job')->resolveWith('AdminJobController@delete')->onlyWithPermission('can_manage');
-        $this->ajax()->get('job')->resolveWith('AdminJobController@get')->onlyWithPermission('can_manage');
-        $this->ajax()->get('option')->resolveWith('AdminOptionController@get')->onlyWithPermission('can_manage');
-        $this->ajax()->put('option')->resolveWith('AdminOptionController@update')->onlyWithPermission('can_manage');
-        $this->ajax()->post('subscribe')->resolveWith('FrontendSubscriberController@post')->enableForUnauthorized(true);
-        $this->ajax()
-             ->delete('subscriber')
-             ->resolveWith('AdminSubscriberController@delete')
-             ->onlyWithPermission('can_manage');
-        $this->ajax()
-             ->get('subscriber')
-             ->resolveWith('AdminSubscriberController@get')
-             ->onlyWithPermission('can_manage');
-        $this->ajax()
-             ->post('subscriber')
-             ->resolveWith('AdminSubscriberController@post')
-             ->onlyWithPermission('can_manage');
+		$this->ajax()->delete('job')->resolveWith('AdminJobController@delete')->onlyWithPermission('can_manage');
+		$this->ajax()->get('job')->resolveWith('AdminJobController@get')->onlyWithPermission('can_manage');
+		$this->ajax()->get('option')->resolveWith('AdminOptionController@get')->onlyWithPermission('can_manage');
+		$this->ajax()->put('option')->resolveWith('AdminOptionController@update')->onlyWithPermission('can_manage');
+		$this->ajax()->post('subscribe')->resolveWith('FrontendSubscriberController@post')->enableForUnauthorized(true);
+		$this->ajax()
+			 ->delete('subscriber')
+			 ->resolveWith('AdminSubscriberController@delete')
+			 ->onlyWithPermission('can_manage');
+		$this->ajax()
+			 ->get('subscriber')
+			 ->resolveWith('AdminSubscriberController@get')
+			 ->onlyWithPermission('can_manage');
+		$this->ajax()
+			 ->post('subscriber')
+			 ->resolveWith('AdminSubscriberController@post')
+			 ->onlyWithPermission('can_manage');
 
-        $this->events()->on('loaded', array($this, 'sendNotifications'));
-        $this->events()->on('post-published', array($this, 'postPublished'));
-        $this->events()->on('post-unpublished', array($this, 'postUnpublished'));
-    }
+		$this->events()->on('loaded', array($this, 'sendNotifications'));
+		$this->events()->on('post-published', array($this, 'postPublished'));
+		$this->events()->on('post-unpublished', array($this, 'postUnpublished'));
 
-    public function activate()
-    {
-        $this->job()->createTable();
-        $this->subscriber()->createTable();
-        $this->option()->createDefaults();
-    }
+		// Our templates in this array.
+		$this->templates = array(
+			'userfacing-template.php' => 'Prenumerationsval',
+		);
+		add_filter( 'template_include', array( $this, 'view_project_template'), 99 );
 
-    /**
-     * @return JobModel
-     */
-    public function job()
-    {
-        return $this->make('Nstaeger\WpPostEmailNotification\Model\JobModel');
-    }
+		// Add query var to front facing admin page
+		add_filter( 'query_vars', array( $this, 'add_query_vars_filter' ) );
+	}
 
-    /**
-     * @return Option
-     */
-    public function option()
-    {
-        return $this->make('Nstaeger\WpPostEmailNotification\Model\Option');
-    }
+	// Add query var to front facing admin page
+	public function add_query_vars_filter( $vars ){
+		$vars[] = 'subscribe_options';
+		return $vars;
+	}
 
-    public function postPublished($id)
-    {
-        $this->job()->createNewJob($id);
-    }
+	public function activate() {
+		$this->job()->createTable();
+		$this->subscriber()->createTable();
+		$this->option()->createDefaults();
+		// In iis.wp-post-email-notification.php we add functions for adding frontend adm page to each blog
+	}
 
-    public function postUnpublished($id)
-    {
-        $this->job()->removeJobsFor($id);
-    }
+	/**
+	 * Checks if the template is assigned to the page
+	 */
+	public function view_project_template( $template ) {
 
-    public function sendNotifications()
-    {
-        $numberOfMails = $this->option()->getNumberOfEmailsSendPerRequest();
-        $jobs = $this->job()->getNextJob();
+		global $post;
+		// If the dont have special postMeta for page template, return normal template
+		if ( ! isset( $this->templates[get_post_meta( $post->ID, '_iis_notify_page_template', true )] ) ) {
+			return $template;
+		}
 
-        if (empty($jobs)) {
-            return;
-        }
+		$file = plugin_dir_path( __FILE__ ) . get_post_meta( $post->ID, '_iis_notify_page_template', true );
+		// Just to be safe, we check if the file exist first
+		if( file_exists( $file ) ) {
+			return $file;
+		}
+		return $template;
+	}
 
-        foreach ($jobs as $job) {
-            $recipients = $this->subscriber()->getEmails($job['offset'], $numberOfMails);
+	/**
+	 * @return JobModel
+	 */
+	public function job() {
+		return $this->make('Nstaeger\WpPostEmailNotification\Model\JobModel');
+	}
 
-            if (sizeof($recipients) < $numberOfMails) {
-                $this->job()->completeJob($job['id']);
-            } else {
-                $this->job()->rescheduleWithNewOffset($job['id'], sizeof($recipients));
-            }
+	/**
+	 * @return Option
+	 */
+	public function option() {
+		return $this->make('Nstaeger\WpPostEmailNotification\Model\Option');
+	}
 
-            if (!empty($recipients)) {
-                $post = get_post($job['post_id']);
+	public function postPublished($id) {
+		$this->job()->createNewJob($id);
+	}
 
-                $blogName = get_bloginfo('name');
-                $postAuthorName = get_the_author_meta('display_name', $post->post_author);
-                $postLink = get_permalink($post->ID);
-                $postTitle = $post->post_title;
+	public function postUnpublished($id) {
+		$this->job()->removeJobsFor($id);
+	}
 
-                $rep_search = ['@@blog.name', '@@post.author.name', '@@post.link', '@@post.title'];
-                $rep_replace = [$blogName, $postAuthorName, $postLink, $postTitle];
+	public function sendNotifications() {
+		$numberOfMails = $this->option()->getNumberOfEmailsSendPerRequest();
+		$jobs          = $this->job()->getNextJob();
 
-                $subject = $this->option()->getEmailSubject();
-                $subject = str_replace($rep_search, $rep_replace, $subject);
+		if ( empty( $jobs ) ) {
+			return;
+		}
 
-                $message = $this->option()->getEmailBody();
-                $message = str_replace($rep_search, $rep_replace, $message);
+		foreach ( $jobs as $job ) {
+			$recipients = $this->subscriber()->getEmails( $job['offset'], $numberOfMails );
 
-                $headers[] = '';
+			if ( sizeof( $recipients ) < $numberOfMails ) {
+				$this->job()->completeJob( $job['id'] );
+			} else {
+				$this->job()->rescheduleWithNewOffset( $job['id'], sizeof( $recipients ) );
+			}
 
-                foreach ($recipients as $recipient) {
-// _log( [$recipient['email']], $subject, $message, $headers );// Dev-log, should be deleted -Thomas
-                    wp_mail([$recipient['email']], $subject, $message, $headers);
-                }
-            }
-        }
-    }
+			if ( ! empty( $recipients ) ) {
+				$post           = get_post( $job['post_id'] );
+				$author_id      = $job['author_id'];
 
-    /**
-     * @return SubscriberModel
-     */
-    public function subscriber()
-    {
-        return $this->make('Nstaeger\WpPostEmailNotification\Model\SubscriberModel');
-    }
+				$blog_name      = get_bloginfo( 'name' );
+				$blog_url       = get_bloginfo( 'url' );
+				$postAuthorName = get_the_author_meta( 'display_name', $post->post_author );
+				$postLink       = get_permalink( $post->ID );
+				$postTitle      = $post->post_title;
+
+				$rep_search     = ['@@blog.name', '@@post.author.name', '@@post.link', '@@post.title'];
+				$rep_replace    = [$blog_name, $postAuthorName, $postLink, $postTitle];
+
+				$subject        = $this->option()->getEmailSubject();
+				$subject        = str_replace( $rep_search, $rep_replace, $subject );
+
+				$message        = $this->option()->getEmailBody();
+				$message        = str_replace( $rep_search, $rep_replace, $message );
+
+				$headers[]      = '';
+
+				foreach ( $recipients as $recipient ) {
+					$rec_authors = $recipient['authors_array'];
+					$rec_authors = unserialize( $rec_authors );
+
+					// Check if recipient should get this authors post notification
+					if ( in_array( $author_id, $rec_authors ) ) {
+						$subscriber_md5            = $recipient['email_blog_id_md5'];
+						$subscribe_options_message = '';
+						$add_message               = '';
+						$subscribe_options_message = "\n\n\n\nOm du vill ändra dina prenumerationsval eller sluta prenumerera - gå till denna länken\n\n" . $blog_url . "/prenumerationsval/?subscribe_options=" . $subscriber_md5;
+						$add_message               = $message . $subscribe_options_message;
+_log( [$recipient['email']], $subject, $add_message );// Dev-log, should be deleted -Thomas
+						wp_mail( [$recipient['email']], $subject, $add_message, $headers );
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * @return SubscriberModel
+	 */
+	public function subscriber() {
+		return $this->make('Nstaeger\WpPostEmailNotification\Model\SubscriberModel');
+	}
 }

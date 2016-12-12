@@ -19,10 +19,17 @@ class AdminSubscriberController extends Controller
             throw new HttpBadRequestException("ID was not set");
         }
 
-        $id = intval($subscriber->id);
+        $id   = intval($subscriber->id);
+        $admin = isset( $subscriber->admin );
         $subscriberModel->delete($id);
 
-        return new JsonResponse($subscriberModel->getAll());
+        if ( $admin ) {
+            return new JsonResponse($subscriberModel->getAll());
+        } else {
+            // Self deleted user should not get other users in json-response
+            return new JsonResponse();
+        }
+
     }
 
     public function get(SubscriberModel $subscriberModel)

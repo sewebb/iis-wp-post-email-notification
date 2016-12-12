@@ -19,6 +19,14 @@ class WordpressDatabaseBroker implements DatabaseBroker
 
     public function delete($table, array $where)
     {
+    	// $deleted = $this->databaseConnection->delete($this->parsePrefix($table), $where);
+     //    if ( false === $deleted ) {
+     //        _log( $deleted );
+     //    } else {
+     //        _log( $deleted );
+     //        global $wpdb;
+     //        _log( $wpdb->last_query );
+     //    }
         return $this->databaseConnection->delete($this->parsePrefix($table), $where);
     }
 
@@ -45,6 +53,19 @@ class WordpressDatabaseBroker implements DatabaseBroker
     public function insert($table, array $data)
     {
         return $this->databaseConnection->insert($this->parsePrefix($table), $data);
+    }
+
+    public function update($table, array $data, array $where ) {
+
+        // $updated = $this->databaseConnection->update($this->parsePrefix($table), $data, $where );
+        // if ( false === $updated ) {
+        //     _log( $updated );
+        // } else {
+        //     _log( $updated );
+        //     global $wpdb;
+        //     _log( $wpdb->last_query );
+        // }
+        return $this->databaseConnection->update($this->parsePrefix($table), $data, $where );
     }
 
     private function parsePrefix($query)

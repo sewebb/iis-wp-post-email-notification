@@ -9,120 +9,149 @@ use Symfony\Component\HttpFoundation\Request;
 
 class SubscriberModel
 {
-    const TABLE_NAME = '@@wppen_subscribers';
+	const TABLE_NAME = '@@wppen_subscribers';
 
-    /**
-     * @var DatabaseBroker
-     */
-    private $database;
+	/**
+	 * @var DatabaseBroker
+	 */
+	private $database;
 
-    public function __construct(DatabaseBroker $database)
-    {
-        $this->database = $database;
-    }
+	public function __construct(DatabaseBroker $database)
+	{
+		$this->database = $database;
+	}
 
-    /**
-     * @param Request $request
-     */
-    public function add(Request $request)
-    {
-        $subscriber = json_decode($request->getContent());
+	/**
+	 * @param Request $request
+	 */
+	public function add(Request $request)
+	{
+		$subscriber = json_decode($request->getContent());
 
-        $email = isset($subscriber->email) ? sanitize_email($subscriber->email) : null;
-        $ip = $request->getClientIp();
+		$email   = isset($subscriber->email) ? sanitize_email($subscriber->email) : null;
+		$ip      = $request->getClientIp();
+		$authors = isset( $subscriber->checkedAuthors ) ? array_map( 'absint', $subscriber->checkedAuthors ) : array();
+		$authors = serialize( $authors );
 
-        $this->addPlain($email, $ip);
-    }
+		$blog_id           = get_current_blog_id();
+		$email_blog_id_md5 = md5( $email . $blog_id );
+		$query             = sprintf( "SELECT id, email FROM %s WHERE email_blog_id_md5 = '{$email_blog_id_md5}' ", self::TABLE_NAME );
 
-    public function createTable()
-    {
-        $query = "CREATE TABLE IF NOT EXISTS " . self::TABLE_NAME . " (
-            id int(10) NOT NULL AUTO_INCREMENT,
-            blog_id int(10) NOT NULL,
-            email VARCHAR(255) NOT NULL,
-            ip VARCHAR(255),
-            created_gmt DATETIME NOT NULL,
-            PRIMARY KEY  id (id)
-        ) DEFAULT CHARSET=utf8;";
+		$dupe_check = $this->database->fetchAll( $query );
+		$curr_id    = isset( $dupe_check[0]['id'] ) ? $dupe_check[0]['id'] : null;
+		$mail_exist = isset( $dupe_check[0]['email'] ) ? $dupe_check[0]['email'] : '';
 
-        if ($this->database->executeQuery($query) === false) {
-            throw new \RuntimeException('Unable to create database for WP Post Subscription Plugin');
-        }
-    }
+		if ( $mail_exist !== $email ) {
+			$this->addPlain( $email, $ip, $authors, $email_blog_id_md5 );
+		} else {
+			$this->updatePlain( $curr_id, $authors );
+		}
+	}
 
-    public function delete($id)
-    {
-        ArgCheck::isInt($id);
+	public function createTable()
+	{
+		$query = "CREATE TABLE IF NOT EXISTS " . self::TABLE_NAME . " (
+			id int(10) NOT NULL AUTO_INCREMENT,
+			blog_id int(10) NOT NULL,
+			authors_array longtext NOT NULL,
+			email VARCHAR(255) NOT NULL,
+			ip VARCHAR(255),
+			created_gmt DATETIME NOT NULL,
+			email_blog_id_md5 VARCHAR(100) NOT NULL,
+			PRIMARY KEY  id (id)
+		) DEFAULT CHARSET=utf8;";
 
-        $where = [
-            'id'      => $id,
-            'blog_id' => get_current_blog_id(),
-        ];
+		if ($this->database->executeQuery($query) === false) {
+			throw new \RuntimeException('Unable to create database for WP Post Subscription Plugin');
+		}
+	}
 
-        if ($this->database->delete(self::TABLE_NAME, $where) === false) {
-            throw new \RuntimeException('Unable to delete subscriber from database (Post Subscription Plugin)');
-        }
-    }
+	public function delete($id)
+	{
+		ArgCheck::isInt($id);
 
-    public function dropTable()
-    {
-        $query = sprintf("DROP TABLE IF EXISTS %s", self::TABLE_NAME);
+		$where = [
+			'id'      => $id,
+			'blog_id' => get_current_blog_id(),
+		];
 
-        if ($this->database->executeQuery($query) === false) {
-            throw new \RuntimeException('Unable to delete database for WP Post Subscription Plugin');
-        }
-    }
+		if ($this->database->delete(self::TABLE_NAME, $where) === false) {
+			throw new \RuntimeException('Unable to delete subscriber from database (Post Subscription Plugin)');
+		}
+	}
 
-    public function getAll()
-    {
-        $blog_id = get_current_blog_id();
-        $query = sprintf("SELECT * FROM %s WHERE blog_id = {$blog_id} ORDER BY id", self::TABLE_NAME);
+	public function dropTable()
+	{
+		$query = sprintf("DROP TABLE IF EXISTS %s", self::TABLE_NAME);
 
-        return $this->database->fetchAll($query);
-    }
+		if ($this->database->executeQuery($query) === false) {
+			throw new \RuntimeException('Unable to delete database for WP Post Subscription Plugin');
+		}
+	}
 
-    public function getEmails($offset, $count)
-    {
-        ArgCheck::isInt($offset);
-        ArgCheck::isInt($count);
+	public function getAll()
+	{
+		$blog_id = get_current_blog_id();
+		$query = sprintf("SELECT * FROM %s WHERE blog_id = {$blog_id} ORDER BY id", self::TABLE_NAME);
 
-        $blog_id = get_current_blog_id();
+		return $this->database->fetchAll($query);
+	}
 
-        $query = sprintf("SELECT email FROM %s WHERE blog_id = {$blog_id} ORDER BY id LIMIT %d, %d", self::TABLE_NAME, $offset, $count);
+	public function getEmails($offset, $count)
+	{
+		ArgCheck::isInt($offset);
+		ArgCheck::isInt($count);
 
-        return $this->database->fetchAll($query);
-    }
+		$blog_id = get_current_blog_id();
 
-    /**
-     * Adds the subscriber to dbtable - with blog_id
-     *
-     * @param  string $email   subscriber email
-     * @param  string $ip      subscriber ip-address
-     */
+		$query = sprintf("SELECT email, blog_id, authors_array FROM %s WHERE blog_id = {$blog_id} ORDER BY id LIMIT %d, %d", self::TABLE_NAME, $offset, $count);
 
-    private function addPlain( $email, $ip )
-    {
-        ArgCheck::isEmail( $email );
-        ArgCheck::isIp( $ip );
+		return $this->database->fetchAll($query);
+	}
 
-        $blog_id    = get_current_blog_id();
-        $query      = sprintf( "SELECT email FROM %s WHERE blog_id = {$blog_id} AND email = '{$email}' ", self::TABLE_NAME );
-        $mail_exist = $this->database->fetchAll( $query );
-        $mail_exist = isset( $mail_exist[0]['email'] ) ? $mail_exist[0]['email'] : '';
+	/**
+	 * Adds the subscriber to dbtable - with blog_id
+	 *
+	 * @param  string $email   subscriber email
+	 * @param  string $ip      subscriber ip-address
+	 */
 
-        // Insert if mail is not in db for this blog
-        if ( $mail_exist !== $email ) {
-            $data = [
-                'email'       => $email,
-                'ip'          => $ip,
-                'blog_id'     => $blog_id,
-                'created_gmt' => Time::now()->asSqlTimestamp(),
-            ];
+	private function addPlain( $email, $ip, $authors, $email_blog_id_md5 )
+	{
+		ArgCheck::isEmail( $email );
+		ArgCheck::isIp( $ip );
+		$blog_id = get_current_blog_id();
 
-            if ( $this->database->insert( self::TABLE_NAME, $data ) === false ) {
-                throw new \RuntimeException( 'Unable to add subscriber to the database' );
-            }
-        }
-    }
+		$data = [
+			'email'             => $email,
+			'ip'                => $ip,
+			'blog_id'           => $blog_id,
+			'authors_array'     => $authors,
+			'created_gmt'       => Time::now()->asSqlTimestamp(),
+			'email_blog_id_md5' => $email_blog_id_md5,
+		];
+
+		if ( $this->database->insert( self::TABLE_NAME, $data ) === false ) {
+			throw new \RuntimeException( 'Unable to add subscriber to the database' );
+		}
+
+	}
+
+	private function updatePlain( $curr_id, $authors ) {
+		$blog_id = get_current_blog_id();
+
+		$data = [
+			'authors_array' => $authors,
+			'created_gmt'   => Time::now()->asSqlTimestamp(),
+		];
+		$where = [
+			'id'      => $curr_id,
+		];
+
+		if ( $this->database->update( self::TABLE_NAME, $data, $where ) === false ) {
+			throw new \RuntimeException( 'Unable to update subscriber in the database' );
+		}
+	}
+
 
 }
