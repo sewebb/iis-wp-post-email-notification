@@ -41,7 +41,7 @@ class JobModel
 			'post_id'        => $post_id,
 			'author_id'      => $author_id,
 			'blog_id'        => $blog_id,
-			'next_round_gmt' => Time::now()->plusMinutes(1)->asSqlTimestamp(), // Dev minuter tillbaks till 1 minut?
+			'next_round_gmt' => Time::now()->plusMinutes(1)->asSqlTimestamp(),
 			'created_gmt'    => Time::now()->asSqlTimestamp()
 		];
 
