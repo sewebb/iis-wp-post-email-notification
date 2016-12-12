@@ -6,15 +6,15 @@ The ORIGINAL plugin is available on [wordpress.org](https://wordpress.org/plugin
 
 ## Developers
 
-The version hosted on GitHub seweb is the development version and by itself not able to run in your WordPress installation.
+The version hosted on GitHub/sewebb is the development version and by itself will not be able to run in your WordPress installation.
 
 To use this version, you will need [Node](http://nodejs.org/), [Composer](https://getcomposer.org/) and [Webpack](https://webpack.github.io/) installed.
 
-* `git clone git@github.com:sewebb/IIS-WP-Post-Email-Notification.git` into the plugins-folder of your WordPress installation
+* `git clone git@github.com:sewebb/iis-wp-post-email-notification.git` into the plugins-folder of your WordPress installation
 * `cd wp-post-email-notification/`
 * `composer install` to install php dependencies
 * `npm install` to install JS dependencies
-* `webpack` to compile the JS files
+* `gulp webpack` to compile the JS files
 * Activate the plugin in the WordPress plugin administration panel
 
 [Gulp](http://gulpjs.com/) is used to build an installable bundle, but not required for development.
