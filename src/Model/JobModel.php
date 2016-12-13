@@ -50,8 +50,7 @@ class JobModel
 		}
 	}
 
-	public function createTable()
-	{
+	public function createTable() {
 		$query = "CREATE TABLE IF NOT EXISTS " . self::TABLE_NAME . " (
 			id int(10) NOT NULL AUTO_INCREMENT,
 			post_id int(10) NOT NULL,
