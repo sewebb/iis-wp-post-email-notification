@@ -44,7 +44,7 @@ module.exports = {
                 id: id
             };
 
-            this.$http.post(this.url + 'subscriber_delete', data).then(function (response) {
+            this.$http.post(this.url + 'subscribe_delete', data).then(function (response) {
                 this.$set('unsubscribed', true);
                 this.$set('success', false);
             }, this.handleError);

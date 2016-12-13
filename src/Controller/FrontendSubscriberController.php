@@ -21,4 +21,18 @@ class FrontendSubscriberController extends Controller
 
         return new JsonResponse();
     }
+
+    public function delete( Request $request, SubscriberModel $subscriberModel ) {
+        $subscriber = json_decode($request->getContent());
+
+        if ( ! isset( $subscriber->id ) || empty( $subscriber->id ) ) {
+            throw new HttpBadRequestException( "Id x saknas" );
+        }
+
+        $id   = intval( $subscriber->id );
+        $subscriberModel->external_delete( $id );
+
+		return new JsonResponse();
+
+    }
 }
