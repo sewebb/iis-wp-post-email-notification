@@ -20,15 +20,9 @@ class AdminSubscriberController extends Controller
         }
 
         $id   = intval($subscriber->id);
-        $admin = isset( $subscriber->admin );
         $subscriberModel->delete($id);
 
-        if ( $admin ) {
-            return new JsonResponse($subscriberModel->getAll());
-        } else {
-            // Self deleted user should not get other users in json-response
-            return new JsonResponse();
-        }
+        return new JsonResponse($subscriberModel->getAll());
 
     }
 
