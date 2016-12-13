@@ -172,7 +172,7 @@ class WpPostEmailNotificationPlugin extends Plugin {
 						$add_message               = '';
 						$subscribe_options_message = "\n\n\n\nOm du vill ändra dina prenumerationsval eller sluta prenumerera - gå till denna länken\n\n" . $blog_url . "/prenumerationsval/?subscribe_options=" . $subscriber_md5;
 						$add_message               = $message . $subscribe_options_message;
-_log( [$recipient['email']], $subject, $add_message );// Dev-log, should be deleted -Thomas
+// _log( [$recipient['email']], $subject, $add_message );// Dev-log, should be deleted -Thomas
 						wp_mail( [$recipient['email']], $subject, $add_message, $headers );
 					}
 				}
