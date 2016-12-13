@@ -7,9 +7,9 @@ Template Post Type: page
 get_header();
 ?>
 <style>
-	.iis-notify-checkboxes-div, .iis-notify-messages, .iis-notify-unsubscribe {
+	/*	.iis-notify-checkboxes-div, .iis-notify-messages, .iis-notify-unsubscribe {
 		clear: both;
-	}
+	}*/
 	.iis-notify-checkboxes-div label {
 		margin-left: 5px;
 	}
@@ -36,11 +36,11 @@ get_header();
 
 <div class="content-area">
 	<div class="site-main js-iis-notify">
-		<p class="success" v-if="unsubscribed">
+		<p class="success entry-content" v-if="unsubscribed">
 		    Din e-postadress är nu borttagen och du kommer inte att få fler meddelanden om nya poster på denna bloggen.
 		</p>
 		<div v-else>
-			<form v-if="!success" v-on:submit.prevent="subscribe">
+			<form v-if="!success" v-on:submit.prevent="subscribe" class="entry-content">
 
 				<div class="iis-notify-checkboxes-div">
 					<h3>Välj vilken/vilka författare du vill prenumerera på</h3>
@@ -117,7 +117,7 @@ get_header();
 			    <input class="iis-notify-submit" type="submit" value="<?php echo $submit_label; ?>" :disabled="currentlySubscribing">
 			</form>
 		</div>
-		<div class="iis-notify-messages">
+		<div class="iis-notify-messages entry-content">
 			<p class="success" v-if="success">
 			    Tack för att du prenumererar!
 			</p>
