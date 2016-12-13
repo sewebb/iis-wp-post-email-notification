@@ -43,7 +43,7 @@
 			<tr>
 				<th style="width: 20px;">ID</th>
 				<th class="column-primary">E-postadress</th>
-				<th>Skapad (GMT)</th>
+				<th>Prenumerantens admin-länk</th>
 				<th style="width: 20px;"></th>
 			</tr>
 		</thead>
@@ -51,7 +51,7 @@
 			<tr v-for="subscriber in subscribers">
 				<td>{{ subscriber.id }}</td>
 				<td>{{ subscriber.email }}</td>
-				<td>{{ subscriber.created_gmt }}</td>
+				<td><a href="/prenumerationsval/?subscribe_options={{ subscriber.email_blog_id_md5 }}" target="blank">{{ subscriber.email_blog_id_md5 }}</a></td>
 				<td><span v-on:click="deleteSubscriber(subscriber.id)" class="dashicons dashicons-trash"></span></td>
 			</tr>
 			<tr v-if="fetchingSubscribers">
