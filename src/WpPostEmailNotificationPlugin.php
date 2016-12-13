@@ -22,6 +22,9 @@ class WpPostEmailNotificationPlugin extends Plugin {
 		$this->ajax()->get('option')->resolveWith('AdminOptionController@get')->onlyWithPermission('can_manage');
 		$this->ajax()->put('option')->resolveWith('AdminOptionController@update')->onlyWithPermission('can_manage');
 		$this->ajax()->post('subscribe')->resolveWith('FrontendSubscriberController@post')->enableForUnauthorized(true);
+
+		$this->ajax()->delete( 'subscribe' )->resolveWith( 'FrontendSubscriberController@delete' )->enableForUnauthorized( true );
+
 		$this->ajax()
 			 ->delete('subscriber')
 			 ->resolveWith('AdminSubscriberController@delete')
@@ -62,7 +65,7 @@ class WpPostEmailNotificationPlugin extends Plugin {
 	 */
 	function subscribelink_after_content( $content ) {
 		if ( is_single() ) {
-			$author_id = get_the_author_meta('ID');
+			$author_id = get_the_author_meta( 'ID' );
 			$content .= '<hr><a href="/prenumerationsval/?subscribe_author=' . $author_id . '">Prenumerera på nya blogginlägg</a>';
 			return $content;
 		}
