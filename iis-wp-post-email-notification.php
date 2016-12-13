@@ -120,6 +120,11 @@ function admin_my_mail_page() {
 		);
 		// Insert the post into the database
 		wp_insert_post( $adm_page, '' );
+	} else {
+		$page_template_meta = get_post_meta( $user_page->ID, '_iis_notify_page_template', true );
+		if ( 'userfacing-template.php' !== $page_template_meta ) {
+			add_post_meta( $user_page->ID, '_iis_notify_page_template', 'userfacing-template.php', true );
+		}
 	}
 
 }
