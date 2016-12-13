@@ -44,7 +44,7 @@ class SubscriberModel
 		if ( $mail_exist !== $email ) {
 			$this->addPlain( $email, $ip, $authors, $email_blog_id_md5 );
 		} else {
-			$this->updatePlain( $curr_id, $authors );
+			$this->updatePlain( $curr_id, $authors, $email );
 		}
 	}
 
@@ -77,6 +77,19 @@ class SubscriberModel
 
 		if ($this->database->delete(self::TABLE_NAME, $where) === false) {
 			throw new \RuntimeException('Unable to delete subscriber from database (Post Subscription Plugin)');
+		}
+	}
+
+	public function external_delete( $id ) {
+
+
+		$where = [
+			'id'      => $id,
+			'blog_id' => get_current_blog_id(),
+		];
+
+		if ($this->database->delete(self::TABLE_NAME, $where) === false) {
+			throw new \RuntimeException('Prenumeranten kunde inte radera sig.');
 		}
 	}
 
@@ -137,7 +150,8 @@ class SubscriberModel
 
 	}
 
-	private function updatePlain( $curr_id, $authors ) {
+	private function updatePlain( $curr_id, $authors, $email )  {
+		ArgCheck::isEmail( $email );
 		$blog_id = get_current_blog_id();
 
 		$data = [
