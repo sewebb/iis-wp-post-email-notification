@@ -51,16 +51,8 @@ class WordpressDatabaseBroker implements DatabaseBroker
         return $this->databaseConnection->update($this->parsePrefix($table), $data, $where );
     }
 
-    private function parsePrefix($query)
-    {
-        // Switch to main blogg db tables
-        if ( ! is_main_site() ) {
-            switch_to_blog( 1 );
-        }
-        $to_be_returned = str_replace("@@", $this->databaseConnection->prefix, $query);
-        // Return to my blog
-        restore_current_blog();
-
-        return $to_be_returned;
+    private function parsePrefix($query) {
+        // Use base_prefix instead of prefix
+        return str_replace("@@", $this->databaseConnection->base_prefix, $query);
     }
 }
