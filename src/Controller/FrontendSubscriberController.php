@@ -11,28 +11,27 @@ use Symfony\Component\HttpFoundation\Request;
 
 class FrontendSubscriberController extends Controller
 {
-    public function post(Request $request, SubscriberModel $subscriberModel)
-    {
-        try {
-            $subscriberModel->add($request);
-        } catch (InvalidArgumentException $e) {
-            throw new HttpBadRequestException($e->getMessage());
-        }
+	public function post( Request $request, SubscriberModel $subscriberModel ) {
+		try {
+			$subscriberModel->add( $request );
+		} catch (InvalidArgumentException $e) {
+			throw new HttpBadRequestException( $e->getMessage() );
+		}
 
-        return new JsonResponse();
-    }
+		return new JsonResponse();
+	}
 
-    public function delete( Request $request, SubscriberModel $subscriberModel ) {
-        $subscriber = json_decode($request->getContent());
+	public function delete( Request $request, SubscriberModel $subscriberModel ) {
+		$subscriber = json_decode( $request->getContent() );
 
-        if ( ! isset( $subscriber->id ) || empty( $subscriber->id ) ) {
-            throw new HttpBadRequestException( "Id x saknas" );
-        }
+		if ( ! isset( $subscriber->id ) || empty( $subscriber->id ) ) {
+			throw new HttpBadRequestException( 'Id x saknas' );
+		}
 
-        $id   = intval( $subscriber->id );
-        $subscriberModel->external_delete( $id );
+		$id   = intval( $subscriber->id );
+		$subscriberModel->external_delete( $id );
 
 		return new JsonResponse();
 
-    }
+	}
 }

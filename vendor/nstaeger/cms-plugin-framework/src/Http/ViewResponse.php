@@ -7,11 +7,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ViewResponse extends Response
 {
-    // TODO inject dependencies?
-    public function withTemplate($template, $parameters = [])
-    {
-        $this->content = Plugin::getInstance()->renderer()->render($template, $parameters);
+	// TODO inject dependencies?
+	public function withTemplate( $template, $parameters = [] ) {
+		$this->content = Plugin::getInstance()->renderer()->render( $template, $parameters );
 
-        return $this;
-    }
+		return $this;
+	}
 }

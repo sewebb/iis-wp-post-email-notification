@@ -12,66 +12,62 @@ use Symfony\Component\HttpFoundation\Response;
 
 class Kernel
 {
-    /**
-     * @var ActionResolver
-     */
-    private $resolver;
+	/**
+	 * @var ActionResolver
+	 */
+	private $resolver;
 
-    /**
-     * @param ActionResolver $resolver
-     */
-    public function __construct(ActionResolver $resolver)
-    {
-        $this->resolver = $resolver;
-    }
+	/**
+	 * @param ActionResolver $resolver
+	 */
+	public function __construct( ActionResolver $resolver ) {
+		$this->resolver = $resolver;
+	}
 
-    /**
-     * Handle a request and transform it into a response.
-     *
-     * @param mixed $action
-     * @return Response
-     */
-    public function handleRequest($action)
-    {
-        try {
-            $callable = $this->getCallable($action);
-            $response = $this->execute($callable);
+	/**
+	 * Handle a request and transform it into a response.
+	 *
+	 * @param mixed $action
+	 * @return Response
+	 */
+	public function handleRequest( $action ) {
+		try {
+			$callable = $this->getCallable( $action );
+			$response = $this->execute( $callable );
 
-            if (!$response instanceof Response) {
-                throw new HttpInternalErrorException('Action did not return a proper Reponse.');
-            }
+			if ( ! $response instanceof Response ) {
+				throw new HttpInternalErrorException( 'Action did not return a proper Reponse.' );
+			}
 
-            return $response;
-        } catch (HttpException $e) {
-            return new Response("Exception: " . $e->getMessage(), $e->getStatusCode());
-        }
-    }
+			return $response;
+		} catch (HttpException $e) {
+			return new Response( 'Exception: ' . $e->getMessage(), $e->getStatusCode() );
+		}
+	}
 
-    /**
-     * Execute the callable and handle the request.
-     *
-     * @param callable $callable
-     * @return Response
-     */
-    private function execute($callable)
-    {
-        return $this->resolver->execute($callable);
-    }
+	/**
+	 * Execute the callable and handle the request.
+	 *
+	 * @param callable $callable
+	 * @return Response
+	 */
+	private function execute( $callable ) {
+		return $this->resolver->execute( $callable );
+	}
 
-    /**
-     * Transform the action into a callable.
-     *
-     * @param mixed $action
-     * @return callable
-     */
-    private function getCallable($action)
-    {
-        try {
-            return $this->resolver->resolveAction($action);
-        } catch (InvalidArgumentException $e) {
-            throw new HttpNotFoundException(
-                sprintf('Unable to resolve action "%s": %s', $action, $e->getMessage()), $e
-            );
-        }
-    }
+	/**
+	 * Transform the action into a callable.
+	 *
+	 * @param mixed $action
+	 * @return callable
+	 */
+	private function getCallable( $action ) {
+		try {
+			return $this->resolver->resolveAction( $action );
+		} catch (InvalidArgumentException $e) {
+			throw new HttpNotFoundException(
+				sprintf( 'Unable to resolve action "%s": %s', $action, $e->getMessage() ), $e
+			);
+		}
+	}
 }

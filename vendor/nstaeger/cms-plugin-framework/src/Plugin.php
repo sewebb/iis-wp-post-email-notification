@@ -14,93 +14,84 @@ use Symfony\Component\HttpFoundation\Request;
 
 class Plugin extends Container
 {
-    public function __construct(Configuration $configuration, Creator $creator)
-    {
-        self::setInstance($this);
+	public function __construct( Configuration $configuration, Creator $creator ) {
+		self::setInstance( $this );
 
-        $this->instance('Nstaeger\CmsPluginFramework\Configuration', $configuration);
-        $this->singleton(
-            'Nstaeger\CmsPluginFramework\Event\EventDispatcher',
-            'Nstaeger\CmsPluginFramework\Event\EventDispatcher'
-        );
-        $creator->build($this);
+		$this->instance( 'Nstaeger\CmsPluginFramework\Configuration', $configuration );
+		$this->singleton(
+			'Nstaeger\CmsPluginFramework\Event\EventDispatcher',
+			'Nstaeger\CmsPluginFramework\Event\EventDispatcher'
+		);
+		$creator->build( $this );
 
-        // register regular events from system
-        $this->make('Nstaeger\CmsPluginFramework\Broker\EventBroker')->fireAll($this->events());
+		// register regular events from system
+		$this->make( 'Nstaeger\CmsPluginFramework\Broker\EventBroker' )->fireAll( $this->events() );
 
-        // regular request
-        $this->singleton(
-            'Symfony\Component\HttpFoundation\Request',
-            function () {
-                return Request::createFromGlobals();
-            }
-        );
+		// regular request
+		$this->singleton(
+			'Symfony\Component\HttpFoundation\Request',
+			function () {
+				return Request::createFromGlobals();
+			}
+		);
 
-        $this->events()->on('activate', array($this, 'activate'));
-        $this->events()->on('deactivate', array($this, 'deactivate'));
-    }
+		$this->events()->on( 'activate', array( $this, 'activate' ) );
+		$this->events()->on( 'deactivate', array( $this, 'deactivate' ) );
+	}
 
-    /**
-     * @return RestBroker
-     */
-    public function ajax()
-    {
-        return $this->make('Nstaeger\CmsPluginFramework\Broker\RestBroker');
-    }
+	/**
+	 * @return RestBroker
+	 */
+	public function ajax() {
+		return $this->make( 'Nstaeger\CmsPluginFramework\Broker\RestBroker' );
+	}
 
-    /**
-     * @return AssetBroker
-     */
-    public function asset()
-    {
-        return $this->make('Nstaeger\CmsPluginFramework\Broker\AssetBroker');
-    }
+	/**
+	 * @return AssetBroker
+	 */
+	public function asset() {
+		return $this->make( 'Nstaeger\CmsPluginFramework\Broker\AssetBroker' );
+	}
 
-    /**
-     * @return EventDispatcher
-     */
-    public function events()
-    {
-        return $this->make('Nstaeger\CmsPluginFramework\Event\EventDispatcher');
-    }
+	/**
+	 * @return EventDispatcher
+	 */
+	public function events() {
+		return $this->make( 'Nstaeger\CmsPluginFramework\Event\EventDispatcher' );
+	}
 
-    /**
-     * @return MenuBroker
-     */
-    public function menu()
-    {
-        return $this->make('Nstaeger\CmsPluginFramework\Broker\MenuBroker');
-    }
+	/**
+	 * @return MenuBroker
+	 */
+	public function menu() {
+		return $this->make( 'Nstaeger\CmsPluginFramework\Broker\MenuBroker' );
+	}
 
-    /**
-     * @return PermissionBroker
-     */
-    public function permission()
-    {
-        return $this->make('Nstaeger\CmsPluginFramework\Broker\PermissionBroker');
-    }
+	/**
+	 * @return PermissionBroker
+	 */
+	public function permission() {
+		return $this->make( 'Nstaeger\CmsPluginFramework\Broker\PermissionBroker' );
+	}
 
-    /**
-     * @return TemplateRenderer
-     */
-    public function renderer()
-    {
-        return $this->make('Nstaeger\CmsPluginFramework\Templating\TemplateRenderer');
-    }
+	/**
+	 * @return TemplateRenderer
+	 */
+	public function renderer() {
+		return $this->make( 'Nstaeger\CmsPluginFramework\Templating\TemplateRenderer' );
+	}
 
-    /**
-     * Is being called automatically, when the plugin is being activated
-     */
-    protected function activate()
-    {
-        // noop
-    }
+	/**
+	 * Is being called automatically, when the plugin is being activated
+	 */
+	protected function activate() {
+		// noop
+	}
 
-    /**
-     * is being called automatically, when the plugin is being deactivated
-     */
-    protected function deactivate()
-    {
-        // noop
-    }
+	/**
+	 * is being called automatically, when the plugin is being deactivated
+	 */
+	protected function deactivate() {
+		// noop
+	}
 }

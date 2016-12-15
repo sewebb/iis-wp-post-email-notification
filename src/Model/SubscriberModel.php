@@ -16,19 +16,17 @@ class SubscriberModel
 	 */
 	private $database;
 
-	public function __construct(DatabaseBroker $database)
-	{
+	public function __construct( DatabaseBroker $database ) {
 		$this->database = $database;
 	}
 
 	/**
 	 * @param Request $request
 	 */
-	public function add(Request $request)
-	{
-		$subscriber = json_decode($request->getContent());
+	public function add( Request $request ) {
+		$subscriber = json_decode( $request->getContent() );
 
-		$email   = isset($subscriber->email) ? sanitize_email($subscriber->email) : null;
+		$email   = isset( $subscriber->email ) ? sanitize_email( $subscriber->email ) : null;
 		$ip      = $request->getClientIp();
 		$authors = isset( $subscriber->checkedAuthors ) ? array_map( 'absint', $subscriber->checkedAuthors ) : array();
 		$authors = serialize( $authors );
@@ -48,78 +46,72 @@ class SubscriberModel
 		}
 	}
 
-	public function createTable()
-	{
-		$query = "CREATE TABLE IF NOT EXISTS " . self::TABLE_NAME . " (
-			id int(10) NOT NULL AUTO_INCREMENT,
-			blog_id int(10) NOT NULL,
-			authors_array longtext NOT NULL,
-			email VARCHAR(255) NOT NULL,
-			ip VARCHAR(255),
-			created_gmt DATETIME NOT NULL,
-			email_blog_id_md5 VARCHAR(100) NOT NULL,
-			PRIMARY KEY  id (id)
-		) DEFAULT CHARSET=utf8;";
+	public function createTable() {
+		$query = 'CREATE TABLE IF NOT EXISTS ' . self::TABLE_NAME . ' (
+            id int(10) NOT NULL AUTO_INCREMENT,
+            blog_id int(10) NOT NULL,
+            authors_array longtext NOT NULL,
+            email VARCHAR(255) NOT NULL,
+            ip VARCHAR(255),
+            created_gmt DATETIME NOT NULL,
+            email_blog_id_md5 VARCHAR(100) NOT NULL,
+            PRIMARY KEY  id (id)
+        ) DEFAULT CHARSET=utf8;';
 
-		if ($this->database->executeQuery($query) === false) {
-			throw new \RuntimeException('Unable to create database for WP Post Subscription Plugin');
+		if ( $this->database->executeQuery( $query ) === false ) {
+			throw new \RuntimeException( 'Unable to create database for WP Post Subscription Plugin' );
 		}
 	}
 
-	public function delete($id)
-	{
-		ArgCheck::isInt($id);
+	public function delete( $id ) {
+		ArgCheck::isInt( $id );
 
 		$where = [
 			'id'      => $id,
 			'blog_id' => get_current_blog_id(),
 		];
 
-		if ($this->database->delete(self::TABLE_NAME, $where) === false) {
-			throw new \RuntimeException('Unable to delete subscriber from database (Post Subscription Plugin)');
+		if ( $this->database->delete( self::TABLE_NAME, $where ) === false ) {
+			throw new \RuntimeException( 'Unable to delete subscriber from database (Post Subscription Plugin)' );
 		}
 	}
 
 	public function external_delete( $id ) {
 
-
 		$where = [
 			'id'      => $id,
 			'blog_id' => get_current_blog_id(),
 		];
 
-		if ($this->database->delete(self::TABLE_NAME, $where) === false) {
-			throw new \RuntimeException('Prenumeranten kunde inte radera sig.');
+		if ( $this->database->delete( self::TABLE_NAME, $where ) === false ) {
+			throw new \RuntimeException( 'Prenumeranten kunde inte radera sig.' );
 		}
 	}
 
-	public function dropTable()
-	{
-		$query = sprintf("DROP TABLE IF EXISTS %s", self::TABLE_NAME);
+	public function dropTable() {
+		$query = sprintf( 'DROP TABLE IF EXISTS %s', self::TABLE_NAME );
 
-		if ($this->database->executeQuery($query) === false) {
-			throw new \RuntimeException('Unable to delete database for WP Post Subscription Plugin');
+		if ( $this->database->executeQuery( $query ) === false ) {
+			throw new \RuntimeException( 'Unable to delete database for WP Post Subscription Plugin' );
 		}
 	}
 
-	public function getAll()
-	{
+	public function getAll() {
 		$blog_id = get_current_blog_id();
-		$query = sprintf("SELECT * FROM %s WHERE blog_id = {$blog_id} ORDER BY id", self::TABLE_NAME);
+		$query = sprintf( "SELECT * FROM %s WHERE blog_id = {$blog_id} ORDER BY id", self::TABLE_NAME );
 
-		return $this->database->fetchAll($query);
+		return $this->database->fetchAll( $query );
 	}
 
-	public function getEmails($offset, $count)
-	{
-		ArgCheck::isInt($offset);
-		ArgCheck::isInt($count);
+	public function getEmails( $offset, $count ) {
+		ArgCheck::isInt( $offset );
+		ArgCheck::isInt( $count );
 
 		$blog_id = get_current_blog_id();
 
-		$query = sprintf("SELECT email, blog_id, authors_array, email_blog_id_md5 FROM %s WHERE blog_id = {$blog_id} ORDER BY id LIMIT %d, %d", self::TABLE_NAME, $offset, $count);
+		$query = sprintf( "SELECT email, blog_id, authors_array, email_blog_id_md5 FROM %s WHERE blog_id = {$blog_id} ORDER BY id LIMIT %d, %d", self::TABLE_NAME, $offset, $count );
 
-		return $this->database->fetchAll($query);
+		return $this->database->fetchAll( $query );
 	}
 
 	/**
@@ -129,8 +121,7 @@ class SubscriberModel
 	 * @param  string $ip      subscriber ip-address
 	 */
 
-	private function addPlain( $email, $ip, $authors, $email_blog_id_md5 )
-	{
+	private function addPlain( $email, $ip, $authors, $email_blog_id_md5 ) {
 		ArgCheck::isEmail( $email );
 		ArgCheck::isIp( $ip );
 		$blog_id = get_current_blog_id();
@@ -150,7 +141,7 @@ class SubscriberModel
 
 	}
 
-	private function updatePlain( $curr_id, $authors, $email )  {
+	private function updatePlain( $curr_id, $authors, $email ) {
 		ArgCheck::isEmail( $email );
 		$blog_id = get_current_blog_id();
 
@@ -166,6 +157,4 @@ class SubscriberModel
 			throw new \RuntimeException( 'Unable to update subscriber in the database' );
 		}
 	}
-
-
 }

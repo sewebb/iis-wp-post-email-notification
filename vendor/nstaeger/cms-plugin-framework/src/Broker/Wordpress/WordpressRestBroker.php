@@ -11,139 +11,131 @@ use Symfony\Component\HttpFoundation\Response;
 
 class WordpressRestBroker implements RestBroker
 {
-    /**
-     * @var RestEndpointItem[]
-     */
-    private $endpoints;
+	/**
+	 * @var RestEndpointItem[]
+	 */
+	private $endpoints;
 
-    /**
-     * @var Kernel
-     */
-    private $kernel;
+	/**
+	 * @var Kernel
+	 */
+	private $kernel;
 
-    /**
-     * @var PermissionBroker
-     */
-    private $permssions;
+	/**
+	 * @var PermissionBroker
+	 */
+	private $permssions;
 
-    /**
-     * @var string
-     */
-    private $prefix;
+	/**
+	 * @var string
+	 */
+	private $prefix;
 
-    public function __construct(Configuration $config, Kernel $kernel, PermissionBroker $permissionBroker)
-    {
-        $this->endpoints = array();
-        $this->kernel = $kernel;
-        $this->permssions = $permissionBroker;
-        $this->prefix = $config->getRestPrefix();
+	public function __construct( Configuration $config, Kernel $kernel, PermissionBroker $permissionBroker ) {
+		$this->endpoints = array();
+		$this->kernel = $kernel;
+		$this->permssions = $permissionBroker;
+		$this->prefix = $config->getRestPrefix();
 
-        add_action(
-            'init',
-            function () {
-                $this->loadEndpoints();
-            }
-        );
-    }
+		add_action(
+			'init',
+			function () {
+				$this->loadEndpoints();
+			}
+		);
+	}
 
-    /**
-     * @param string $route
-     * @return RestEndpointItem
-     */
-    public function delete($route)
-    {
-        return $this->registerEndpoint('DELETE', $route);
-    }
+	/**
+	 * @param string $route
+	 * @return RestEndpointItem
+	 */
+	public function delete( $route ) {
+		return $this->registerEndpoint( 'DELETE', $route );
+	}
 
-    /**
-     * @param string $route
-     * @return RestEndpointItem
-     */
-    public function get($route)
-    {
-        return $this->registerEndpoint('GET', $route);
-    }
+	/**
+	 * @param string $route
+	 * @return RestEndpointItem
+	 */
+	public function get( $route ) {
+		return $this->registerEndpoint( 'GET', $route );
+	}
 
-    /**
-     * @param string $route
-     * @return RestEndpointItem
-     */
-    public function post($route)
-    {
-        return $this->registerEndpoint('POST', $route);
-    }
+	/**
+	 * @param string $route
+	 * @return RestEndpointItem
+	 */
+	public function post( $route ) {
+		return $this->registerEndpoint( 'POST', $route );
+	}
 
-    /**
-     * @param string $route
-     * @return RestEndpointItem
-     */
-    public function put($route)
-    {
-        return $this->registerEndpoint('PUT', $route);
-    }
+	/**
+	 * @param string $route
+	 * @return RestEndpointItem
+	 */
+	public function put( $route ) {
+		return $this->registerEndpoint( 'PUT', $route );
+	}
 
-    /**
-     * @param string $method
-     * @param string $route
-     * @return RestEndpointItem
-     */
-    public function registerEndpoint($method, $route)
-    {
-        $endpoint = new RestEndpointItem($method, $route);
-        $this->endpoints[] = $endpoint;
+	/**
+	 * @param string $method
+	 * @param string $route
+	 * @return RestEndpointItem
+	 */
+	public function registerEndpoint( $method, $route ) {
+		$endpoint = new RestEndpointItem( $method, $route );
+		$this->endpoints[] = $endpoint;
 
-        return $endpoint;
-    }
+		return $endpoint;
+	}
 
-    private function loadEndpoints()
-    {
-        foreach ($this->endpoints as $endpoint) {
-            $wordpress_pre = 'wp_ajax';
+	private function loadEndpoints() {
+		foreach ( $this->endpoints as $endpoint ) {
+			$wordpress_pre = 'wp_ajax';
 
-            if ($endpoint->accessibleForAuthorized()) {
-                $function = [
-                    $wordpress_pre,
-                    $this->prefix,
-                    $endpoint->getRoute(),
-                    strtolower($endpoint->getMethod())
-                ];
+			if ( $endpoint->accessibleForAuthorized() ) {
+				$function = [
+					$wordpress_pre,
+					$this->prefix,
+					$endpoint->getRoute(),
+					strtolower( $endpoint->getMethod() ),
+				];
 
-                add_action(
-                    implode('_', $function),
-                    function () use ($endpoint) {
-                        $perm = $endpoint->getRequiredPermission();
+				add_action(
+					implode( '_', $function ),
+					function () use ( $endpoint ) {
+						$perm = $endpoint->getRequiredPermission();
 
-                        if ($perm == null || ($perm != null && $this->permssions->has($perm))) {
-                            $response = $this->kernel->handleRequest($endpoint->getAction());
-                        }
-                        else {
-                            $response = new Response("Unauthorized", Response::HTTP_UNAUTHORIZED);
-                        }
+						if ( $perm == null || ($perm != null && $this->permssions->has( $perm )) ) {
+							$response = $this->kernel->handleRequest( $endpoint->getAction() );
+						} else {
+							$response = new Response( 'Unauthorized', Response::HTTP_UNAUTHORIZED );
+						}
 
-                        $response->send();
-                        die();
-                    }
-                );
-            }
+						$response->send();
+						die();
+					}
+				);
+			}
 
-            if ($endpoint->accessibleForUnauthorized()) {
-                $function = [
-                    $wordpress_pre,
-                    'nopriv',
-                    $this->prefix,
-                    $endpoint->getRoute(),
-                    strtolower($endpoint->getMethod())
-                ];
+			if ( $endpoint->accessibleForUnauthorized() ) {
+				$function = [
+					$wordpress_pre,
+					'nopriv',
+					$this->prefix,
+					$endpoint->getRoute(),
+					strtolower( $endpoint->getMethod() ),
+				];
 
-                add_action(
-                    implode('_', $function),
-                    function () use ($endpoint) {
-                        $response = $this->kernel->handleRequest($endpoint->getAction());
-                        $response->sendContent();
-                        die();
-                    }
-                );
-            }
-        }
-    }
+				add_action(
+					implode( '_', $function ),
+					function () use ( $endpoint ) {
+						$response = $this->kernel->handleRequest( $endpoint->getAction() );
+						$response->sendContent();
+						die();
+					}
+				);
+			}
+		}
+	}
 }

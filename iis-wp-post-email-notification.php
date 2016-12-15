@@ -14,26 +14,26 @@ use Nstaeger\CmsPluginFramework\Configuration;
 use Nstaeger\CmsPluginFramework\Creator\WordpressCreator;
 use Nstaeger\WpPostEmailNotification\WpPostEmailNotificationPlugin;
 
-defined('ABSPATH') or die('No script kiddies please!');
+defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
 
 require __DIR__ . '/vendor/autoload.php';
 $config = require __DIR__ . '/config.php';
 
-$plugin = new WpPostEmailNotificationPlugin(new Configuration($config), new WordpressCreator());
+$plugin = new WpPostEmailNotificationPlugin( new Configuration( $config ), new WordpressCreator() );
 
-$plugin->permission()->registerPermissionMapping('can_manage', 'manage_options');
+$plugin->permission()->registerPermissionMapping( 'can_manage', 'manage_options' );
 
 add_action(
 	'transition_post_status',
-	function ($new_status, $old_status, $post) use ($plugin) {
-		if ($post->post_type != 'post') {
+	function ( $new_status, $old_status, $post ) use ( $plugin ) {
+		if ( $post->post_type != 'post' ) {
 			return;
 		}
 
-		if ($new_status == 'publish' && $old_status != 'publish') {
-			$plugin->events()->fire('post-published', [$post->ID]);
-		} elseif ($old_status == 'publish' && $new_status != 'publish') {
-			$plugin->events()->fire('post-unpublished', [$post->ID]);
+		if ( $new_status == 'publish' && $old_status != 'publish' ) {
+			$plugin->events()->fire( 'post-published', [ $post->ID ] );
+		} elseif ( $old_status == 'publish' && $new_status != 'publish' ) {
+			$plugin->events()->fire( 'post-unpublished', [ $post->ID ] );
 		}
 	},
 	10,
@@ -49,12 +49,12 @@ add_action( 'wp_enqueue_scripts', 'register_iis_notify_scripts' );
 register_activation_hook( __FILE__, 'multi_network_activate' );
 
 function register_iis_notify_scripts() {
-  if ( is_page_template( 'userfacing-template.php' ) ) {
-  	wp_register_script( 'iis_notify_frontend', plugins_url( 'js/bundle/frontend-widget.js', __FILE__ ), array(), '20161208', true );
-  	wp_localize_script( 'iis_notify_frontend', 'ajaxurl', admin_url( 'admin-ajax.php' ) );
-    wp_enqueue_script( 'iis_notify_frontend' );
+	if ( is_page_template( 'userfacing-template.php' ) ) {
+		wp_register_script( 'iis_notify_frontend', plugins_url( 'js/bundle/frontend-widget.js', __FILE__ ), array(), '20161208', true );
+		wp_localize_script( 'iis_notify_frontend', 'ajaxurl', admin_url( 'admin-ajax.php' ) );
+	wp_enqueue_script( 'iis_notify_frontend' );
 
-  }
+	}
 }
 
 function multi_network_activate( $networkwide ) {

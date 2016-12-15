@@ -10,43 +10,43 @@ use Nstaeger\WpPostEmailNotification\Model\Option;
 use Nstaeger\WpPostEmailNotification\Model\SubscriberModel;
 
 class WpPostEmailNotificationPlugin extends Plugin {
-	function __construct(Configuration $configuration, Creator $creator) {
-		parent::__construct($configuration, $creator);
+	function __construct( Configuration $configuration, Creator $creator ) {
+		parent::__construct( $configuration, $creator );
 
-		$this->menu()->registerAdminMenuItem('Epost om ny bloggpost')
-			 ->withAction('AdminPageController@optionsPage')
-			 ->withAsset('js/bundle/admin-options.js');
+		$this->menu()->registerAdminMenuItem( 'Epost om ny bloggpost' )
+			 ->withAction( 'AdminPageController@optionsPage' )
+			 ->withAsset( 'js/bundle/admin-options.js' );
 
 		// $this->ajax()->delete('job')->resolveWith('AdminJobController@delete')->onlyWithPermission('can_manage');
-		$this->ajax()->get('job')->resolveWith('AdminJobController@get')->onlyWithPermission('can_manage');
-		$this->ajax()->get('option')->resolveWith('AdminOptionController@get')->onlyWithPermission('can_manage');
-		$this->ajax()->put('option')->resolveWith('AdminOptionController@update')->onlyWithPermission('can_manage');
-		$this->ajax()->post('subscribe')->resolveWith('FrontendSubscriberController@post')->enableForUnauthorized(true);
+		$this->ajax()->get( 'job' )->resolveWith( 'AdminJobController@get' )->onlyWithPermission( 'can_manage' );
+		$this->ajax()->get( 'option' )->resolveWith( 'AdminOptionController@get' )->onlyWithPermission( 'can_manage' );
+		$this->ajax()->put( 'option' )->resolveWith( 'AdminOptionController@update' )->onlyWithPermission( 'can_manage' );
+		$this->ajax()->post( 'subscribe' )->resolveWith( 'FrontendSubscriberController@post' )->enableForUnauthorized( true );
 
 		$this->ajax()->delete( 'subscribe' )->resolveWith( 'FrontendSubscriberController@delete' )->enableForUnauthorized( true );
 
 		$this->ajax()
-			 ->delete('subscriber')
-			 ->resolveWith('AdminSubscriberController@delete')
-			 ->onlyWithPermission('can_manage');
+			 ->delete( 'subscriber' )
+			 ->resolveWith( 'AdminSubscriberController@delete' )
+			 ->onlyWithPermission( 'can_manage' );
 		$this->ajax()
-			 ->get('subscriber')
-			 ->resolveWith('AdminSubscriberController@get')
-			 ->onlyWithPermission('can_manage');
+			 ->get( 'subscriber' )
+			 ->resolveWith( 'AdminSubscriberController@get' )
+			 ->onlyWithPermission( 'can_manage' );
 		$this->ajax()
-			 ->post('subscriber')
-			 ->resolveWith('AdminSubscriberController@post')
-			 ->onlyWithPermission('can_manage');
+			 ->post( 'subscriber' )
+			 ->resolveWith( 'AdminSubscriberController@post' )
+			 ->onlyWithPermission( 'can_manage' );
 
-		$this->events()->on('loaded', array($this, 'sendNotifications'));
-		$this->events()->on('post-published', array($this, 'postPublished'));
-		$this->events()->on('post-unpublished', array($this, 'postUnpublished'));
+		$this->events()->on( 'loaded', array( $this, 'sendNotifications' ) );
+		$this->events()->on( 'post-published', array( $this, 'postPublished' ) );
+		$this->events()->on( 'post-unpublished', array( $this, 'postUnpublished' ) );
 
 		// Our templates in this array.
 		$this->templates = array(
 			'userfacing-template.php' => 'Prenumerationsval',
 		);
-		add_filter( 'template_include', array( $this, 'view_project_template'), 99 );
+		add_filter( 'template_include', array( $this, 'view_project_template' ), 99 );
 
 		// Add query var to front facing admin page
 		add_filter( 'query_vars', array( $this, 'add_query_vars_filter' ) );
@@ -60,6 +60,7 @@ class WpPostEmailNotificationPlugin extends Plugin {
 
 	/**
 	 * [subscribelink_after_content description]
+	 *
 	 * @param  [type] $content [description]
 	 * @return [type]          [description]
 	 */
@@ -72,7 +73,7 @@ class WpPostEmailNotificationPlugin extends Plugin {
 		return $content;
 	}
 	// Add query var to front facing admin page
-	public function add_query_vars_filter( $vars ){
+	public function add_query_vars_filter( $vars ) {
 		$vars[] = 'subscribe_options';
 		$vars[] .= 'subscribe_author';
 		return $vars;
@@ -92,13 +93,13 @@ class WpPostEmailNotificationPlugin extends Plugin {
 
 		global $post;
 		// If the dont have special postMeta for page template, return normal template
-		if ( ! isset( $this->templates[get_post_meta( $post->ID, '_iis_notify_page_template', true )] ) ) {
+		if ( ! isset( $this->templates[ get_post_meta( $post->ID, '_iis_notify_page_template', true ) ] ) ) {
 			return $template;
 		}
 
 		$file = plugin_dir_path( __FILE__ ) . get_post_meta( $post->ID, '_iis_notify_page_template', true );
 		// Just to be safe, we check if the file exist first
-		if( file_exists( $file ) ) {
+		if ( file_exists( $file ) ) {
 			return $file;
 		}
 		return $template;
@@ -108,22 +109,22 @@ class WpPostEmailNotificationPlugin extends Plugin {
 	 * @return JobModel
 	 */
 	public function job() {
-		return $this->make('Nstaeger\WpPostEmailNotification\Model\JobModel');
+		return $this->make( 'Nstaeger\WpPostEmailNotification\Model\JobModel' );
 	}
 
 	/**
 	 * @return Option
 	 */
 	public function option() {
-		return $this->make('Nstaeger\WpPostEmailNotification\Model\Option');
+		return $this->make( 'Nstaeger\WpPostEmailNotification\Model\Option' );
 	}
 
-	public function postPublished($id) {
-		$this->job()->createNewJob($id);
+	public function postPublished( $id ) {
+		$this->job()->createNewJob( $id );
 	}
 
-	public function postUnpublished($id) {
-		$this->job()->removeJobsFor($id);
+	public function postUnpublished( $id ) {
+		$this->job()->removeJobsFor( $id );
 	}
 
 	public function sendNotifications() {
@@ -153,8 +154,8 @@ class WpPostEmailNotificationPlugin extends Plugin {
 				$postLink       = get_permalink( $post->ID );
 				$postTitle      = $post->post_title;
 
-				$rep_search     = ['@@blog.name', '@@post.author.name', '@@post.link', '@@post.title'];
-				$rep_replace    = [$blog_name, $postAuthorName, $postLink, $postTitle];
+				$rep_search     = [ '@@blog.name', '@@post.author.name', '@@post.link', '@@post.title' ];
+				$rep_replace    = [ $blog_name, $postAuthorName, $postLink, $postTitle ];
 
 				$subject        = $this->option()->getEmailSubject();
 				$subject        = str_replace( $rep_search, $rep_replace, $subject );
@@ -173,9 +174,9 @@ class WpPostEmailNotificationPlugin extends Plugin {
 						$subscriber_md5            = $recipient['email_blog_id_md5'];
 						$subscribe_options_message = '';
 						$add_message               = '';
-						$subscribe_options_message = "\n\n\n\nOm du vill ändra dina prenumerationsval eller sluta prenumerera - gå till denna länken\n" . $blog_url . "/prenumerationsval/?subscribe_options=" . $subscriber_md5;
+						$subscribe_options_message = "\n\n\n\nOm du vill ändra dina prenumerationsval eller sluta prenumerera - gå till denna länken\n" . $blog_url . '/prenumerationsval/?subscribe_options=' . $subscriber_md5;
 						$add_message               = $message . $subscribe_options_message;
-						wp_mail( [$recipient['email']], $subject, $add_message, $headers );
+						wp_mail( [ $recipient['email'] ], $subject, $add_message, $headers );
 					}
 				}
 			}
@@ -186,6 +187,6 @@ class WpPostEmailNotificationPlugin extends Plugin {
 	 * @return SubscriberModel
 	 */
 	public function subscriber() {
-		return $this->make('Nstaeger\WpPostEmailNotification\Model\SubscriberModel');
+		return $this->make( 'Nstaeger\WpPostEmailNotification\Model\SubscriberModel' );
 	}
 }

@@ -10,17 +10,15 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AdminOptionController extends Controller
 {
-    public function get(Option $option)
-    {
-        return new JsonResponse($option->getAll());
-    }
+	public function get( Option $option ) {
+		return new JsonResponse( $option->getAll() );
+	}
 
-    public function update(Option $option, Request $request)
-    {
-        $data = json_decode($request->getContent(), true);
+	public function update( Option $option, Request $request ) {
+		$data = json_decode( $request->getContent(), true );
 
-        $option->setAll($data);
+		$option->setAll( $data );
 
-        return new Response();
-    }
+		return new Response();
+	}
 }
