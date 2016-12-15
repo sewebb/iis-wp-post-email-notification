@@ -16,7 +16,7 @@ class ArgCheck
     public static function isEmail($arg)
     {
         if (empty($arg) || !is_email($arg)) {
-            throw new InvalidArgumentException("Du behöver ange en giltig e-postadress");
+            throw new InvalidArgumentException("Du behöver ange en giltig e-postadress" . $arg);
         }
     }
 
