@@ -4,6 +4,18 @@ A [WordPress](https://wordpress.org/) plugin sending email notifications to subs
 
 The ORIGINAL plugin is available on [wordpress.org](https://wordpress.org/plugins/wp-post-email-notification).
 
+## Notable changes made
+* This version is changed to accommodate our need for use in a multisite enviroment.
+* Textstrings are changed to Swedish and therefore still not prepared for translation.
+* Widget is deactivated and replaced by link to a front facing admin page
+* Section for looking att what jobs are running is removed
+* Javascript for plugin is only run on front facing admin page (and in backend admin)
+* Option to send x emails per job at a time is set to 5
+* DB tables has new columns.
+* In wppen_subscribers: blog_id (which blog subsciber email belongs to), authors_array (which authors subscriber want to get mail from), email_blog_id_md5 (unsubscribe/change subscription link)
+* In wppen_jobs: blog_id, author_id
+
+
 ## Developers
 
 The version hosted on GitHub/sewebb is the development version and by itself will not be able to run in your WordPress installation.
