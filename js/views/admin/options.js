@@ -10,7 +10,6 @@ module.exports = {
         jobs:                [],
         subscribers:         [],
         fetchingSubscribers: true,
-        fetchingJobs:        true,
         fetchingOptions:     true,
         newSubscriber:       {
             email: "",
@@ -30,11 +29,6 @@ module.exports = {
             this.$set('subscribers', response.data);
             this.$set('fetchingSubscribers', false);
         }, this.handleError);
-
-        this.$http.get(this.url + 'job_get').then(function (response) {
-            this.$set('jobs', response.data);
-            this.$set('fetchingJobs', false);
-        }, this.handleError);
     },
 
     methods: {
@@ -49,20 +43,6 @@ module.exports = {
                 this.$set('updatingSubscribers', false);
                 this.handleError(response);
             });
-        },
-
-        deleteJob: function (id) {
-            if (!window.confirm("Vill du verkligen ta bort det pågående e-postutskicket med id " + id + "?")) {
-                return;
-            }
-
-            var data = {
-                id: id
-            };
-
-            this.$http.post(this.url + 'job_delete', data).then(function (response) {
-                this.$set('jobs', response.data);
-            }, this.handleError);
         },
 
         deleteSubscriber: function (id) {

@@ -17,7 +17,7 @@ class WpPostEmailNotificationPlugin extends Plugin {
 			 ->withAction('AdminPageController@optionsPage')
 			 ->withAsset('js/bundle/admin-options.js');
 
-		$this->ajax()->delete('job')->resolveWith('AdminJobController@delete')->onlyWithPermission('can_manage');
+		// $this->ajax()->delete('job')->resolveWith('AdminJobController@delete')->onlyWithPermission('can_manage');
 		$this->ajax()->get('job')->resolveWith('AdminJobController@get')->onlyWithPermission('can_manage');
 		$this->ajax()->get('option')->resolveWith('AdminOptionController@get')->onlyWithPermission('can_manage');
 		$this->ajax()->put('option')->resolveWith('AdminOptionController@update')->onlyWithPermission('can_manage');
@@ -173,9 +173,8 @@ class WpPostEmailNotificationPlugin extends Plugin {
 						$subscriber_md5            = $recipient['email_blog_id_md5'];
 						$subscribe_options_message = '';
 						$add_message               = '';
-						$subscribe_options_message = "\n\n\n\nOm du vill ändra dina prenumerationsval eller sluta prenumerera - gå till denna länken\n\n" . $blog_url . "/prenumerationsval/?subscribe_options=" . $subscriber_md5;
+						$subscribe_options_message = "\n\n\n\nOm du vill ändra dina prenumerationsval eller sluta prenumerera - gå till denna länken\n" . $blog_url . "/prenumerationsval/?subscribe_options=" . $subscriber_md5;
 						$add_message               = $message . $subscribe_options_message;
-// _log( [$recipient['email']], $subject, $add_message );// Dev-log, should be deleted -Thomas
 						wp_mail( [$recipient['email']], $subject, $add_message, $headers );
 					}
 				}

@@ -123,42 +123,4 @@
 		</table>
 	</form>
 
-<?php // I think we should hide this for the users ?>
-<!--
-	<hr/>
-
-	<h2>Pågående e-postutskick</h2>
-
-	<p>Det här är listan över "jobb" som just nu skickar e-post eller som väntar på att andra jobb ska bli klara. E-post skickas till 5 mottagare i taget</p>
-
-	<table class="wp-list-table widefat striped">
-		<thead>
-			<tr>
-				<th style="width: 20px;">ID</th>
-				<th class="column-primary">Inläggs-ID</th>
-				<th>Antal skickade</th>
-				<th>Nästa 5 skickas (GMT)</th>
-				<th>Skapad (GMT)</th>
-				<th style="width: 20px;"></th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr v-for="job in jobs">
-				<td>{{ job.id }}</td>
-				<td>{{ job.post_id }}</td>
-				<td>{{ job.offset }}</td>
-				<td>{{ job.next_round_gmt }}</td>
-				<td>{{ job.created_gmt }}</td>
-				<td><span v-on:click="deleteJob(job.id)" class="dashicons dashicons-trash"></span></td>
-			</tr>
-			<tr v-if="fetchingJobs">
-				<td colspan="6"><i>Vi letar efter pågående jobb</i></td>
-			</tr>
-			<tr v-else>
-				<td v-if="jobs.length == 0" colspan="6"><i>Just nu finns det inga e-post i kö</i></td>
-			</tr>
-
-		</tbody>
-	</table>
--->
 </div>

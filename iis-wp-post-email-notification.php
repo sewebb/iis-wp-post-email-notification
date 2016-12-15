@@ -22,16 +22,6 @@ $config = require __DIR__ . '/config.php';
 $plugin = new WpPostEmailNotificationPlugin(new Configuration($config), new WordpressCreator());
 
 $plugin->permission()->registerPermissionMapping('can_manage', 'manage_options');
-// $plugin->asset()->addAsset(new AssetItem('js/bundle/frontend-widget.js'));
-
-// add_action(
-// 	'widgets_init',
-// 	function () {
-// 		register_widget('Nstaeger\WpPostEmailNotification\Widget\SubscriptionWidget');
-// 	},
-// 	10,
-// 	2
-// );
 
 add_action(
 	'transition_post_status',
