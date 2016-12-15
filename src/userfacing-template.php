@@ -7,9 +7,7 @@ Template Post Type: page
 get_header();
 ?>
 <style>
-	/*	.iis-notify-checkboxes-div, .iis-notify-messages, .iis-notify-unsubscribe {
-		clear: both;
-	}*/
+
 	.iis-notify-checkboxes-div label {
 		margin-left: 5px;
 	}
@@ -113,7 +111,7 @@ get_header();
 					</ul>
 				</div>
 
-			    <input class="iis-notify-email" name="email" type="email" placeholder="Din e-postadress" v-model="subscriber.email" value="<?php echo $curr_email; ?>" <?php echo $email_disabled; ?>>
+			    <input class="iis-notify-email" name="email" type="email" placeholder="Din e-postadress" required v-model="subscriber.email" value="<?php echo $curr_email; ?>" <?php echo $email_disabled; ?>>
 			    <input class="iis-notify-submit" type="submit" value="<?php echo $submit_label; ?>" :disabled="currentlySubscribing">
 			</form>
 		</div>
