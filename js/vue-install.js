@@ -1,5 +1,6 @@
 var Vue = require('vue');
 
+
 function install (Vue) {
 
     Vue.use(require('vue-resource'));
@@ -32,6 +33,11 @@ function install (Vue) {
     };
 }
 
+var VueCookie = require('vue-cookie');
+// Tell Vue to use the plugin
+Vue.use(VueCookie);
+
 Vue.use(install);
+
 
 module.exports = Vue;

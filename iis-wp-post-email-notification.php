@@ -50,7 +50,7 @@ register_activation_hook( __FILE__, 'multi_network_activate' );
 
 function register_iis_notify_scripts() {
 	if ( is_page_template( 'userfacing-template.php' ) ) {
-		wp_register_script( 'iis_notify_frontend', plugins_url( 'js/bundle/frontend-widget.js', __FILE__ ), array(), '20161208', true );
+		wp_register_script( 'iis_notify_frontend', plugins_url( 'js/bundle/frontend-widget.js', __FILE__ ), array(), '20170106', true );
 		wp_localize_script( 'iis_notify_frontend', 'ajaxurl', admin_url( 'admin-ajax.php' ) );
 	wp_enqueue_script( 'iis_notify_frontend' );
 

@@ -1,6 +1,8 @@
 {
   "name": "wp-post-email-notification",
-  "dependencies": {},
+  "dependencies": {
+    "vue-cookie": "^1.1.3"
+  },
   "devDependencies": {
     "del": "^2.2.0",
     "gulp": "^3.9.1",

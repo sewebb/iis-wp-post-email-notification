@@ -23,12 +23,15 @@ module.exports = {
 			if (!this.currentlySubscribing) {
 				this.$set('currentlySubscribing', true);
 				this.$http.post(this.url + 'subscribe_post', this.subscriber).then(function (response) {
-				this.$set('currentlySubscribing', true);
-				this.$set('success', true);
-				this.$set('subscriber.email', "");
-				this.$set('subscriber.checkedAuthors', []);
+					this.$set('currentlySubscribing', true);
+					this.$set('success', true);
+					this.$cookie.set('wppen_v1_authors', this.subscriber.checkedAuthors, 270);
+					this.$cookie.set('wppen_v1_email', this.subscriber.email, 270);
+					this.$set('subscriber.email', "");
+					this.$set('subscriber.checkedAuthors', []);
 
 				}, function(response) {
+
 					this.$set('currentlySubscribing', false);
 					if ( false === response.ok ) {
 						this.$set('error', true);
@@ -56,3 +59,4 @@ module.exports = {
 ;
 
 Vue.ready(module.exports);
+

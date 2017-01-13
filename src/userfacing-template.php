@@ -53,6 +53,10 @@ get_header();
 					$submit_label   = 'Prenumerera';
 					$email_disabled = '';
 					$unsubscribe    = '';
+					$cooke_mail     = isset( $_COOKIE['wppen_v1_email'] ) ? $_COOKIE['wppen_v1_email'] : '';
+					$curr_authors   = isset( $_COOKIE['wppen_v1_authors'] ) ? $_COOKIE['wppen_v1_authors'] : '';
+					// transform to integer array, thats how we list the users authors if we use the db value, se below
+					$curr_authors   = array_map('intval',  array_filter( explode( ',', $curr_authors ) ) );
 
 					if ( $req_user ) {
 						global $wpdb;
@@ -89,19 +93,18 @@ get_header();
 						if ( '' === trim( $author_name ) ) {
 							$author_name = $author_data->display_name;
 						}
-						if ( $curr_email ) {
+
+						if ( $curr_email || isset( $curr_authors[0] ) ) {
 							if ( in_array( $author_id, $curr_authors ) ) {
 								$checked = 'checked';
 							} else {
 								$checked = '';
 							}
 						}
-						// Prechoosen author
+						// Prechoosen author - if cookie get involved, this makes sure at least this author is selected
 						if ( $req_author ) {
 							if ( $req_author === $author_id ) {
 								$checked = 'checked';
-							} else {
-								$checked = '';
 							}
 						}
 
@@ -110,15 +113,21 @@ get_header();
 					?>
 					</ul>
 				</div>
+				<?php
+				// If not email from db, maybe we have it in a cookie
+				if ( ! $curr_email && $cooke_mail ) {
+					$curr_email = $cooke_mail;
+				}
+				?>
 
 			    <input class="iis-notify-email" name="email" type="email" placeholder="Din e-postadress" required v-model="subscriber.email" value="<?php echo $curr_email; ?>" <?php echo $email_disabled; ?>>
 			    <input class="iis-notify-submit" type="submit" value="<?php echo $submit_label; ?>" :disabled="currentlySubscribing">
 			</form>
 		</div>
 		<div class="iis-notify-messages entry-content">
-			<p class="success" v-if="success">
+			<h3 class="success" v-if="success">
 			    Tack för att du prenumererar!
-			</p>
+			</3>
 			<div v-else>
 				<p v-if="error">Något verkar inte korrekt med din epostadress. Kontrollera din adress och prova igen.</p>
 			</div>
