@@ -52,7 +52,8 @@ class WpPostEmailNotificationPlugin extends Plugin {
 		add_filter( 'query_vars', array( $this, 'add_query_vars_filter' ) );
 
 		// Display subscribe link
-		add_filter( 'the_author', array( $this, 'subscribelink_after_content' ) );
+		// Add link only after the content
+		// add_filter( 'the_author', array( $this, 'subscribelink_after_content' ) );
 		add_filter( 'the_content', array( $this, 'subscribelink_after_content' ) );
 
 	}
@@ -65,11 +66,12 @@ class WpPostEmailNotificationPlugin extends Plugin {
 	 * @return [type]          [description]
 	 */
 	function subscribelink_after_content( $content ) {
-		if ( is_single() ) {
+		// Add link also in archive listings
+		// if ( is_single() ) {
 			$author_id = get_the_author_meta( 'ID' );
 			$content .= '<hr><a href="/prenumerationsval/?subscribe_author=' . $author_id . '">Prenumerera på nya blogginlägg</a>';
 			return $content;
-		}
+		// }
 		return $content;
 	}
 	// Add query var to front facing admin page
