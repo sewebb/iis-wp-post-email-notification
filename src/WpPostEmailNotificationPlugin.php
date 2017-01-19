@@ -66,12 +66,13 @@ class WpPostEmailNotificationPlugin extends Plugin {
 	 * @return [type]          [description]
 	 */
 	function subscribelink_after_content( $content ) {
-		// Add link also in archive listings
-		// if ( is_single() ) {
+		// Add link also in archive listings - but not on pages
+		// Add link if frontpage lists blog posts
+		if ( is_single() || is_archive() || ( is_front_page() && is_home() ) ) {
 			$author_id = get_the_author_meta( 'ID' );
 			$content .= '<hr><a href="/prenumerationsval/?subscribe_author=' . $author_id . '">Prenumerera på nya blogginlägg</a>';
 			return $content;
-		// }
+		}
 		return $content;
 	}
 	// Add query var to front facing admin page
