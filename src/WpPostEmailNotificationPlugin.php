@@ -56,6 +56,9 @@ class WpPostEmailNotificationPlugin extends Plugin {
 		// add_filter( 'the_author', array( $this, 'subscribelink_after_content' ) );
 		add_filter( 'the_content', array( $this, 'subscribelink_after_content' ) );
 
+		// Make default options on new blogs
+		add_action( 'wpmu_new_blog', array( $this, 'activate' ), 10, 6 );
+
 	}
 
 
@@ -82,11 +85,92 @@ class WpPostEmailNotificationPlugin extends Plugin {
 		return $vars;
 	}
 
-	public function activate() {
+	/**
+	 * activate blog, original plugin calls this on single activation
+	 *
+	 * @param  int $blogid Only an integer then creating a new blog on multisite network
+	 *
+	 * @return void
+	 */
+	public function activate( $blogid = '' ) {
 		$this->job()->createTable();
 		$this->subscriber()->createTable();
-		$this->option()->createDefaults();
-		// In iis.wp-post-email-notification.php we add functions for adding frontend adm page to each blog
+		$this->option()->createDefaults( $blogid );
+		$this->admin_my_mail_page( $blogid );
+	}
+
+	/**
+	 * set up stuff for all blogs on network
+	 *
+	 * @param  [type] $networkwide [description]
+	 *
+	 * @return [type]              [description]
+	 */
+	public function multi_network_activate( $networkwide ) {
+		global $wpdb;
+
+		if ( function_exists( 'is_multisite' ) && is_multisite() ) {
+			 //check if it is network activation if so run the activation function for each id
+			if ( $networkwide ) {
+				//Get all blog ids WP >= 4.6
+				if ( function_exists( 'get_sites' ) && class_exists( 'WP_Site_Query' ) ) {
+					$sites = get_sites();
+					foreach ( $sites as $site ) {
+						switch_to_blog( $site->blog_id );
+						$this->activate( $site->blog_id );
+						restore_current_blog();
+					}
+					return;
+				}
+			}
+			$this->activate();
+			return;
+		} else {
+			$this->activate();
+			return;
+		}
+	}
+
+	/**
+	 * sets upp page with template for user subscription
+	 *
+	 * @param  [type] $blogid [description]
+	 *
+	 * @return [type]         [description]
+	 */
+	public function admin_my_mail_page( $blogid) {
+		if ( '' !== $blogid ) {
+			switch_to_blog( $blogid );
+		}
+		$user_page      = get_page_by_path( '/prenumerationsval/' );
+		$user_post_name = isset( $user_page->post_name );
+
+		// Check that it does not allready exists
+		if ( ! $user_post_name ) {
+			// Create post object
+			$adm_page = array(
+					'post_title'    => 'Prenumerationsval',
+					'post_content'  => 'Denna sida visar dina användare vilka val de kan göra när de prenumererar. Låt sidan vara som den är.',
+					'post_status'   => 'publish',
+					'post_type'     => 'page',
+					'meta_input'    => array(
+					                         '_wp_page_template'         => 'userfacing-template.php',
+					                         '_iis_notify_page_template' => 'userfacing-template.php',
+					                         ),
+			);
+			// Insert the post into the database
+			wp_insert_post( $adm_page, '' );
+		} else {
+
+			$page_template_meta = get_post_meta( $user_page->ID, '_iis_notify_page_template', true );
+			if ( 'userfacing-template.php' !== $page_template_meta ) {
+				add_post_meta( $user_page->ID, '_iis_notify_page_template', 'userfacing-template.php', true );
+			}
+		}
+		if ( '' !== $blogid ) {
+			restore_current_blog();
+		}
+
 	}
 
 	/**

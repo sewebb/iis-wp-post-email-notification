@@ -23,19 +23,52 @@ class WordpressOptionsBroker implements OptionBroker
 		delete_option( $this->prefix( $option ) );
 	}
 
-	public function get( $option ) {
+	public function get( $option, $blogid = '' ) {
 		ArgCheck::notNull( $option );
-
-		return get_option( $this->prefix( $option ) );
+		if ( '' !== $blogid ) {
+			switch_to_blog( $blogid );
+		}
+		$this_option =  get_option( $this->prefix( $option, $blogid ) );
+		if ( '' !== $blogid ) {
+			restore_current_blog();
+		}
+		return $this_option;
 	}
 
-	public function store( $option, $value ) {
+	/**
+	 * save option in / on correct site
+	 *
+	 * @param  string $option trailing name for option
+	 * @param  string $value  what to save
+	 * @param  int $blogid only a integer then creating new site
+	 *
+	 * @return void
+	 */
+	public function store( $option, $value, $blogid = '' ) {
 		ArgCheck::notNull( $option );
 
-		update_option( $this->prefix( $option ), $value );
+		if ( '' !== $blogid ) {
+			switch_to_blog( $blogid );
+		}
+		update_option( $this->prefix( $option, $blogid ), $value );
+		if ( '' !== $blogid ) {
+			restore_current_blog();
+		}
 	}
 
-	private function prefix( $option ) {
-		return $this->prefix . $option;
+	/**
+	 * set plugin prefix
+	 *
+	 * @param  string $option trailing name for option
+	 * @param  int $blogid only an integer then crating new site
+	 *
+	 * @return string option_name
+	 */
+	private function prefix( $option, $blogid = '' ) {
+		if ( '' !== $blogid ) {
+			return 'wppen_' . $blogid . '_' . $option;
+		} else {
+			return $this->prefix . $option;
+		}
 	}
 }

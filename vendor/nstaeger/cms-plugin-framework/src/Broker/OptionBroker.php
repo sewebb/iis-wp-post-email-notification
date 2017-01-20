@@ -24,6 +24,7 @@ interface OptionBroker
 	 *
 	 * @param string $option unique name of the option
 	 * @param mixed  $value  data to store under this option
+	 * @param int $blogid Only an integer then creating a new blog on multisite network
 	 */
-	function store( $option, $value );
+	function store( $option, $value, $blogid = '' );
 }

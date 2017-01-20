@@ -2,7 +2,7 @@
 /**
  * Plugin Name: E-post om ny bloggpost
  * Description: Skicka e-post till prenumeranter när en ny bloggpost är publicerad
- * Version: 1.0.3
+ * Version: 1.1.0
  * Author: Nicolai Stäger - anpassad av IIS
  * Author URI: https://iis.se
  * License: GNU General Public License v2 or later
@@ -40,13 +40,10 @@ add_action(
 	3
 );
 
-// If a new blog is created
-add_action( 'wpmu_new_blog', 'new_site_add_admin_page', 10, 6 );
-
 add_action( 'wp_enqueue_scripts', 'register_iis_notify_scripts' );
 
 // Hook activation to set a front facing user adm page on activation
-register_activation_hook( __FILE__, 'multi_network_activate' );
+register_activation_hook( __FILE__, array ( $plugin, 'multi_network_activate' ) );
 
 function register_iis_notify_scripts() {
 	if ( is_page_template( 'userfacing-template.php' ) ) {
@@ -57,64 +54,3 @@ function register_iis_notify_scripts() {
 	}
 }
 
-function multi_network_activate( $networkwide ) {
-	global $wpdb;
-
-	if ( function_exists( 'is_multisite' ) && is_multisite() ) {
-		 //check if it is network activation if so run the activation function for each id
-		if ( $networkwide ) {
-			//Get all blog ids WP >= 4.6
-			if ( function_exists( 'get_sites' ) && class_exists( 'WP_Site_Query' ) ) {
-				$sites = get_sites();
-				foreach ( $sites as $site ) {
-					switch_to_blog( $site->blog_id );
-					admin_my_mail_page();
-					restore_current_blog();
-				}
-				return;
-			}
-		}
-		admin_my_mail_page();
-		return;
-	} else {
-		admin_my_mail_page();
-		return;
-	}
-}
-
-function new_site_add_admin_page( $blog_id ) {
-
-	if ( is_plugin_active_for_network( 'iis-wp-post-email-notification/iis-wp-post-email-notification.php' ) ) {
-		switch_to_blog( $blog_id );
-		admin_my_mail_page();
-		restore_current_blog();
-	}
-}
-
-function admin_my_mail_page() {
-	$user_page      = get_page_by_path( '/prenumerationsval/' );
-	$user_post_name = isset( $user_page->post_name );
-
-	// Check that it does not allready exists
-	if ( ! $user_post_name ) {
-		// Create post object
-		$adm_page = array(
-				'post_title'    => 'Prenumerationsval',
-				'post_content'  => 'Denna sida visar dina användare vilka val de kan göra när de prenumererar. Låt sidan vara som den är.',
-				'post_status'   => 'publish',
-				'post_type'     => 'page',
-				'meta_input'    => array(
-				                         '_wp_page_template'         => 'userfacing-template.php',
-				                         '_iis_notify_page_template' => 'userfacing-template.php',
-				                         ),
-		);
-		// Insert the post into the database
-		wp_insert_post( $adm_page, '' );
-	} else {
-		$page_template_meta = get_post_meta( $user_page->ID, '_iis_notify_page_template', true );
-		if ( 'userfacing-template.php' !== $page_template_meta ) {
-			add_post_meta( $user_page->ID, '_iis_notify_page_template', 'userfacing-template.php', true );
-		}
-	}
-
-}
