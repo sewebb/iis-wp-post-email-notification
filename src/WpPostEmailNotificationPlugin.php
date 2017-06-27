@@ -73,7 +73,7 @@ class WpPostEmailNotificationPlugin extends Plugin {
 		// Add link if frontpage lists blog posts
 		if ( is_single() || is_archive() || ( is_front_page() && is_home() ) ) {
 			$author_id = get_the_author_meta( 'ID' );
-			$content .= '<hr><a href="/prenumerationsval/?subscribe_author=' . $author_id . '">Prenumerera på nya blogginlägg</a>';
+			$content .= '<hr style="clear: both"><a href="/prenumerationsval/?subscribe_author=' . $author_id . '">Prenumerera på nya blogginlägg</a>';
 			return $content;
 		}
 		return $content;
