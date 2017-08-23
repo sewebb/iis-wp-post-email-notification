@@ -37,7 +37,54 @@ class Plugin extends Container
 
 		$this->events()->on( 'activate', array( $this, 'activate' ) );
 		$this->events()->on( 'deactivate', array( $this, 'deactivate' ) );
+
+		add_filter( 'allowed_http_origins', array( $this, 'add_allowed_origins' ) );
+
+		// add_action( 'wp_ajax_wppen_v1_subscribe_post', array( $this, 'admin_add_allow_header' ) );
+		// add_action( 'send_headers', array( $this, 'admin_add_allow_header' ) );
 	}
+
+	public function add_allowed_origins( $origins ) {
+		global $wpdb;
+		$test_home = $wpdb->get_var( "select option_value from $wpdb->options where option_name = 'siteurl'" );
+		// Special for webbstjarnan.nu
+		if ( strpos( $test_home, 'webbstjarnan.nu' ) ) {
+			$subdomain      = explode( '.', $test_home )[0];
+			$newdomain      = str_replace( 'https://', 'http://', $subdomain );
+			$add_origin     = $newdomain . '.se';
+			$origins[]      = $add_origin;
+			$origins[]      = $test_home;
+		}
+		return $origins;
+	}
+
+
+	public function admin_add_allow_header() {
+		header( 'Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization' );
+		header( 'Access-Control-Allow-Methods: GET, HEAD, OPTIONS, POST, PUT' );
+		header( 'Access-Control-Expose-Headers: Authorization' );
+
+		global $wpdb;
+		$test_home = $wpdb->get_var( "select option_value from $wpdb->options where option_name = 'siteurl'" );
+		// Special for webbstjarnan.nu
+		if ( strpos( $test_home, 'webbstjarnan.nu' ) ) {
+			$subdomain      = explode( '.', $test_home )[0];
+			$newdomain      = str_replace( 'https://', 'http://', $subdomain );
+			$add_origin     = $newdomain . '.se';
+			header( 'Access-Control-Allow-Origin: ' . $add_origin );
+		}
+	}
+
+
+	public function add_access_control_allow_headers( $headers ) {
+		if ( ! empty( $_SERVER['HTTP_REFERER'] ) ) {
+			$headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept, Authorization';
+			$headers['Access-Control-Allow-Methods'] = 'GET, HEAD, OPTIONS, POST, PUT';
+			$headers['Access-Control-Expose-Headers'] = 'Authorization';
+			return $headers;
+		}
+	}
+
 
 	/**
 	 * @return RestBroker

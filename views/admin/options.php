@@ -1,3 +1,13 @@
+<?php
+echo '<!-- Allowed ' . print_r( get_allowed_http_origins(), true ) . ' -->';
+if ( is_ssl() ) {
+$scheme = 'https';
+} else {
+	$scheme = 'http';
+}
+$test_origin = get_site_url( null, '', $scheme );
+echo '<!-- Tested url ' . is_allowed_http_origin( $test_origin ) . ' -->';
+?>
 <div id="wp-ps-options" class="wrap">
 
 	<h1>E-post om ny bloggpost - Inställningar</h1>

@@ -3,8 +3,24 @@
 Template Name: Prenumerationsval
 Template Post Type: page
 */
-
+echo '<!-- Allowed ' . print_r( get_allowed_http_origins(), true ) . ' -->';
+if ( is_ssl() ) {
+$scheme = 'https';
+} else {
+	$scheme = 'http';
+}
+$test_origin = get_site_url( null, '', $scheme );
+echo '<!-- Tested url ' . is_allowed_http_origin( $test_origin ) . ' -->';
 get_header();
+
+echo '<!-- Allowed after header' . print_r( get_allowed_http_origins(), true ) . ' -->';
+if ( is_ssl() ) {
+$scheme = 'https';
+} else {
+	$scheme = 'http';
+}
+$test_origin = get_site_url( null, '', $scheme );
+echo '<!-- Tested url ' . is_allowed_http_origin( $test_origin ) . ' -->';
 ?>
 <style>
 
