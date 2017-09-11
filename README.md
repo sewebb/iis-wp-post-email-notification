@@ -38,8 +38,8 @@ To use this version, you will need [Node](http://nodejs.org/), [Composer](https:
 * Zip this folder and add it to your site
 
 For exampel add the .zip to a public dropbox-folder and install it with wp-cli
-Example: `wp plugin install https://dl.dropboxusercontent.com/u/8036/SE/plugins/iis-wp-post-email-notification.zip`
-(If plugin already exits, use: `wp plugin install --force https://dl.dropboxusercontent.com/u/8036/SE/plugins/iis-wp-post-email-notification.zip`)
+Example: `wp plugin install https://github.com/sewebb/iis-wp-post-email-notification/raw/master/_dist/iis-wp-post-email-notification.zip`
+(If plugin already exits, use: `wp plugin install --force https://github.com/sewebb/iis-wp-post-email-notification/raw/master/_dist/iis-wp-post-email-notification.zip`)
 
 In a multisite you could activate by site with:
 `wp plugin activate iis-wp-post-email-notification --url=https://domain.se`
