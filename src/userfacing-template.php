@@ -7,16 +7,53 @@ Template Post Type: page
 get_header();
 ?>
 <style>
-
+	.iis-notify-email-general-area {
+		position: relative;
+		z-index: 3;
+		max-width: 90%;
+		min-height: 200px;
+		min-height: 12.5rem;
+		margin: 0 auto;
+		background-color: inherit;
+		padding: 20px;
+		padding: 1.25rem;
+		opacity: .97;
+	}
 	.iis-notify-checkboxes-div label {
 		margin-left: 5px;
+		margin-left: .125rem;
 	}
 	.iis-notify-checkboxes-div ul {
 		list-style: none;
 	}
+	.iis-notify-checkboxes-div li {
+		padding-bottom: 10px;
+		padding-bottom: .25rem;
+	}
 
 	.iis-notify-unsubscribe {
 		margin-top: 100px;
+		margin-top: 6.25rem;
+	}
+
+	.iis-notify-email {
+		height: 40px;
+		height: 2.5rem;
+		min-width: 40%;
+	}
+
+	.iis-notify-submit {
+		display: inline-block;
+		text-align: center;
+		line-height: 1;
+		cursor: pointer;
+		vertical-align: middle;
+		border: 1px solid transparent;
+		padding: .85em 1em;
+		margin: 0 0 16px 0;
+		margin: 0 0 1rem 0;
+		font-size: 14.4px;
+		font-size: .9rem;
 	}
 
 	@media screen and (min-width: 56.875em) {
@@ -32,7 +69,7 @@ get_header();
 
 </style>
 
-<div class="content-area">
+<div class="content-area iis-notify-email-general-area">
 	<div class="site-main js-iis-notify">
 		<p class="success entry-content" v-if="unsubscribed">
 		    Din e-postadress är nu borttagen och du kommer inte att få fler meddelanden om nya poster på denna bloggen.
