@@ -46,7 +46,7 @@ add_action( 'wp_enqueue_scripts', 'register_iis_notify_scripts' );
 register_activation_hook( __FILE__, array ( $plugin, 'multi_network_activate' ) );
 
 function register_iis_notify_scripts() {
-	if ( is_page_template( 'userfacing-template.php' ) ) {
+	if ( is_page_template( 'userfacing-template.php' ) || is_page( 'prenumerationsval') ) {
 
 		wp_register_script( 'iis_notify_frontend', plugins_url( 'js/bundle/frontend-widget.js', __FILE__ ), array(), '20170825', true );
 
