@@ -73,7 +73,7 @@ class WpPostEmailNotificationPlugin extends Plugin {
 		// Add link if frontpage lists blog posts
 		if ( is_single() || is_archive() || ( is_front_page() && is_home() ) ) {
 			$author_id = get_the_author_meta( 'ID' );
-			$content .= '<hr style="clear: both"><a href="/prenumerationsval/?subscribe_author=' . $author_id . '">Prenumerera på nya blogginlägg</a>';
+			$content .= '<span id="pren-section"><hr style="clear: both"><a href="/prenumerationsval/?subscribe_author=' . $author_id . '">Prenumerera på nya blogginlägg</a></span>';
 			return $content;
 		}
 		return $content;
@@ -180,7 +180,8 @@ class WpPostEmailNotificationPlugin extends Plugin {
 
 		global $post;
 		// If the dont have special postMeta for page template, return normal template
-		if ( ! isset( $this->templates[ get_post_meta( $post->ID, '_iis_notify_page_template', true ) ] ) ) {
+		$check_template = get_post_meta( $post->ID, '_iis_notify_page_template', true );
+		if ( empty( $check_template ) || ! isset( $this->templates[ $check_template ] ) ) {
 			return $template;
 		}
 
